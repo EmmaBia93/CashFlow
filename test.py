@@ -23,11 +23,9 @@ class Calculadora():
         self.master = ctk.CTk()
         self.master.geometry("1320x700+12+0")
         
-        script_dir = os.path.dirname(os.path.abspath(__file__))
-        # Construir la ruta relativa al archivo del icono
-        icon_path = os.path.join(script_dir, "img", "cashier2.ico")
+       
 
-        self.master.iconbitmap(icon_path)
+        self.master.iconbitmap("C:\\Users\\PC\\Documents\\EmmaProgramas\\TestCaja\\img\\cashier2.ico")
         self.master.update()
         self.master.title("Cierre de Caja")
         self.master.resizable(width=False, height=False)
@@ -277,11 +275,9 @@ class Calculadora():
         self.verificar_estado_final()
 
     def colocar_widgets_framedown(self):
-        script_dir = os.path.dirname(os.path.abspath(__file__))
-        # Construir la ruta relativa al archivo del icono
-        icon_img = os.path.join(script_dir, "img", "cashier.png")
+       
 
-        img3 = ctk.CTkImage(dark_image=Image.open(icon_img),
+        img3 = ctk.CTkImage(dark_image=Image.open("C:\\Users\\PC\\Documents\\EmmaProgramas\\TestCaja\\img\\cashier.png"),
                             size=(30, 30))
         self.btn_resultado = ctk.CTkButton(self.frame_down,
                                            text="Finalizar Caja",
@@ -405,11 +401,9 @@ class Calculadora():
         self.txt_resultado_virtuales.configure(
             state="disabled", text_color="#8BC4FC")
 
-        script_dir = os.path.dirname(os.path.abspath(__file__))
-        # Construir la ruta relativa al archivo del icono
-        icon_img = os.path.join(script_dir, "img", "upload.png")
+       
 
-        img = ctk.CTkImage(dark_image=Image.open(icon_img), size=(30, 30))
+        img = ctk.CTkImage(dark_image=Image.open("C:\\Users\\PC\\Documents\\EmmaProgramas\\TestCaja\\img\\upload.png"), size=(30, 30))
 
         self.btn_cargar_csv = ctk.CTkButton(master=self.frame_right,
                                             text="Cargar Wisphub",
@@ -607,10 +601,8 @@ class Calculadora():
                     lista += f"{line}\n"
                 self.txt_box_virtules.insert(ctk.END, lista)
 
-            script_dir = os.path.dirname(os.path.abspath(__file__))
-        # Construir la ruta relativa al archivo del icono
-            icon_img = os.path.join(script_dir, "img", "upload.png")
-            img = ctk.CTkImage(dark_image=Image.open(icon_img), size=(30, 30))
+         
+            img = ctk.CTkImage(dark_image=Image.open("C:\\Users\\PC\\Documents\\EmmaProgramas\\TestCaja\\img\\up.png"), size=(30, 30))
             btn_carga_virtuales = ctk.CTkButton(self.toplevel_window,
                                                 height=50,
                                                 width=200,
