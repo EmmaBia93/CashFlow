@@ -65,10 +65,12 @@ class Calculadora():
         self.frame_right.place(x=450, y=10)
 
     def colocar_widgets_frameup(self):
+        
         ancho = 300
         alto = 30
         posx = 0.17
         color_text = "#D0D3D4"
+        
         self.txt_wisphub = ctk.CTkEntry(master=self.frame_up,
                                         width=385,
                                         height=40,
@@ -80,137 +82,46 @@ class Calculadora():
                                         border_color="#3D91CB",
                                         font=("JetBrains Mono", 22),
                                         justify="center")
-
         self.txt_wisphub.place(relx=0.05, rely=0.035)
 
-        et_billete100 = self.crear_label(self.frame_up,
-                                         "Billetes de 100", font=self.font_sans_16)
-        et_billete100.place(relx=posx, rely=0.14)
-        self.txt_billete100 = self.crear_entry(frame=self.frame_up, ancho=ancho,
-                                               alto=alto,
-                                               color=self.color,
-                                               font=self.font_sans_20,
-                                               validacion=False
-                                               )
-        self.txt_billete100.place(relx=0.15, rely=0.20)
-        self.txt_billete100.configure(text_color=color_text)
+        billetes = [
+            ("Billetes de 100", "txt_billete100"),
+            ("Billetes de 200", "txt_billete200"),
+            ("Billetes de 500", "txt_billete500"),
+            ("Billetes de 1000", "txt_billete1000"),
+            ("Billetes de 2000", "txt_billete2000"),
+            ("Billetes de 10000", "txt_billetediezmil")
+        ]
 
-        et_billete200 = self.crear_label(self.frame_up,
-                                         "Billetes de 200", font=self.font_sans_16)
-        et_billete200.place(relx=posx, rely=0.28)
-        self.txt_billete200 = self.crear_entry(frame=self.frame_up,
-                                               ancho=ancho,
-                                               alto=alto,
-                                               color=self.color,
-                                               font=self.font_sans_20,
-                                               validacion=False
-                                               )
-        self.txt_billete200.place(relx=0.15, rely=0.34)
-        self.txt_billete200.configure(text_color=color_text)
+        for i, (label_text, attr_name) in enumerate(billetes):
+            y_label = 0.14 + 0.14 * i
+            y_entry = 0.20 + 0.14 * i
 
-        et_billete500 = self.crear_label(self.frame_up,
-                                         "Billetes de 500",
-                                         font=self.font_sans_16)
-        et_billete500.place(relx=posx, rely=0.42)
+            label = self.crear_label(self.frame_up, label_text, font=self.font_sans_16)
+            label.place(relx=posx, rely=y_label)
 
-        self.txt_billete500 = self.crear_entry(frame=self.frame_up,
-                                               ancho=ancho,
-                                               alto=alto,
-                                               color=self.color,
-                                               font=self.font_sans_20,
-                                               validacion=False
-                                               )
-        self.txt_billete500.place(relx=0.15, rely=0.48)
-        self.txt_billete500.configure(text_color=color_text)
+            entry = self.crear_entry(frame=self.frame_up, ancho=ancho, alto=alto,
+                                    color=self.color, font=self.font_sans_20,
+                                    validacion=False)
+            entry.place(relx=0.15, rely=y_entry)
+            entry.configure(text_color=color_text)
 
-        et_billete1000 = self.crear_label(self.frame_up,
-                                          "Billetes de 1000",
-                                          font=self.font_sans_16)
-        et_billete1000.place(relx=posx, rely=0.56)
+            setattr(self, attr_name, entry)
 
-        self.txt_billete1000 = self.crear_entry(frame=self.frame_up, ancho=ancho,
-                                                alto=alto,
-                                                color=self.color,
-                                                font=self.font_sans_20,
-                                                validacion=False
-                                                )
-        self.txt_billete1000.place(relx=0.15, rely=0.62)
-        self.txt_billete1000.configure(text_color=color_text)
+        bindings = [
+            (self.txt_wisphub, self.txt_billetediezmil, self.txt_billete100),
+            (self.txt_billete100, self.txt_wisphub, self.txt_billete200),
+            (self.txt_billete200, self.txt_billete100, self.txt_billete500),
+            (self.txt_billete500, self.txt_billete200, self.txt_billete1000),
+            (self.txt_billete1000, self.txt_billete500, self.txt_billete2000),
+            (self.txt_billete2000, self.txt_billete1000, self.txt_billetediezmil),
+            (self.txt_billetediezmil, self.txt_billete2000, self.txt_wisphub)
+        ]
 
-        et_billete2000 = self.crear_label(self.frame_up,
-                                          "Billetes de 2000",
-                                          font=self.font_sans_16)
-        et_billete2000.place(relx=posx, rely=0.70)
-
-        self.txt_billete2000 = self.crear_entry(frame=self.frame_up, ancho=ancho,
-                                                alto=alto,
-                                                color=self.color,
-                                                font=self.font_sans_20,
-                                                validacion=False
-                                                )
-        self.txt_billete2000.place(relx=0.15, rely=0.76)
-        self.txt_billete2000.configure(text_color=color_text)
-
-        et_billetediezmil = self.crear_label(self.frame_up,
-                                             "Billetes de 10000",
-                                             font=self.font_sans_16)
-        et_billetediezmil.place(relx=posx, rely=0.84)
-
-        self.txt_billetediezmil = self.crear_entry(frame=self.frame_up, ancho=ancho,
-                                                   alto=alto,
-                                                   color=self.color,
-                                                   font=self.font_sans_20,
-                                                   validacion=False
-                                                   )
-        self.txt_billetediezmil.place(relx=0.15, rely=0.90)
-        self.txt_billetediezmil.configure(text_color=color_text)
-
-        self.txt_wisphub.bind(
-            "<Up>", lambda event, entry_next=self.txt_billete2000: self.mover_cursor(entry_next))
-        self.txt_wisphub.bind(
-            "<Down>", lambda event, entry_next=self.txt_billete100: self.mover_cursor(entry_next))
-        self.txt_wisphub.bind(
-            "<Return>", lambda event, entry_next=self.txt_billete100: self.mover_cursor(entry_next))
-
-        self.txt_billete100.bind(
-            "<Up>", lambda event, entry_next=self.txt_wisphub: self.mover_cursor(entry_next))
-        self.txt_billete100.bind(
-            "<Down>", lambda event, entry_next=self.txt_billete200: self.mover_cursor(entry_next))
-        self.txt_billete100.bind(
-            "<Return>", lambda event, entry_next=self.txt_billete200: self.mover_cursor(entry_next))
-
-        self.txt_billete200.bind(
-            "<Up>", lambda event, entry_next=self.txt_billete100: self.mover_cursor(entry_next))
-        self.txt_billete200.bind(
-            "<Down>", lambda event, entry_next=self.txt_billete500: self.mover_cursor(entry_next))
-        self.txt_billete200.bind(
-            "<Return>", lambda event, entry_next=self.txt_billete500: self.mover_cursor(entry_next))
-
-        self.txt_billete500.bind(
-            "<Up>", lambda event, entry_next=self.txt_billete200: self.mover_cursor(entry_next))
-        self.txt_billete500.bind(
-            "<Down>", lambda event, entry_next=self.txt_billete1000: self.mover_cursor(entry_next))
-        self.txt_billete500.bind(
-            "<Return>", lambda event, entry_next=self.txt_billete1000: self.mover_cursor(entry_next))
-
-        self.txt_billete1000.bind(
-            "<Up>", lambda event, entry_next=self.txt_billete500: self.mover_cursor(entry_next))
-        self.txt_billete1000.bind(
-            "<Down>", lambda event, entry_next=self.txt_billete2000: self.mover_cursor(entry_next))
-        self.txt_billete1000.bind(
-            "<Return>", lambda event, entry_next=self.txt_billete2000: self.mover_cursor(entry_next))
-
-        self.txt_billete2000.bind(
-            "<Up>", lambda event, entry_next=self.txt_billete1000: self.mover_cursor(entry_next))
-        self.txt_billete2000.bind(
-            "<Down>", lambda event, entry_next=self.txt_billetediezmil: self.mover_cursor(entry_next))
-        self.txt_billete2000.bind(
-            "<Return>", lambda event, entry_next=self.txt_billetediezmil: self.mover_cursor(entry_next))
-
-        self.txt_billetediezmil.bind(
-            "<Up>", lambda event, entry_next=self.txt_billete2000: self.mover_cursor(entry_next))
-        self.txt_billetediezmil.bind(
-            "<Down>", lambda event, entry_next=self.txt_wisphub: self.mover_cursor(entry_next))
+        for entry, entry_up, entry_down in bindings:
+            entry.bind("<Up>", lambda event, entry_next=entry_up: self.mover_cursor(entry_next))
+            entry.bind("<Down>", lambda event, entry_next=entry_down: self.mover_cursor(entry_next))
+            entry.bind("<Return>", lambda event, entry_next=entry_down: self.mover_cursor(entry_next))
 
         self.txt_billetediezmil.bind("<Return>", self.enterfinal)
 
@@ -260,83 +171,79 @@ class Calculadora():
         return prototipe_label
 
     def borrar_contenido_resultados(self):
-        self.txt_cantidad_virtuales.configure(state="normal")
-        self.txt_cantidad_virtuales.delete(first_index="0", last_index=ctk.END)
-        self.txt_cantidad_virtuales.configure(state="disabled")
-        self.txt_monto_virtuales.configure(state="normal")
-        self.txt_monto_virtuales.delete(first_index="0", last_index=ctk.END)
-        self.txt_monto_virtuales.configure(state="disabled")
-        self.cant_efectivo.configure(state="normal")
-        self.cant_efectivo.delete(first_index="0", last_index=ctk.END)
-        self.cant_efectivo.configure(state="disabled")
-        self.total.configure(state="normal")
-        self.total.delete(first_index="0", last_index=ctk.END)
-        self.total.configure(state="disabled")
+        
+        widgets = [
+        self.txt_cantidad_virtuales,
+        self.txt_monto_virtuales,
+        self.cant_efectivo,
+        self.total
+        ]
 
+        for widget in widgets:
+            widget.configure(state="normal")
+            widget.delete(first_index="0", last_index=ctk.END)
+            widget.configure(state="disabled")
+
+    
     def colocar_valores_txt(self, text_box, valor):
         text_box.configure(state="normal")
         text_box.insert(index=ctk.END, string=valor)
         text_box.configure(state="disabled")
 
+
     def final_monto_virtuales(self) -> tuple:
-
-        monto = 0
-        cant = 0
-        if self.lista_virtuales:
-
-            for line in self.lista_virtuales:
-                line = re.sub(r'[^0-9\[\]]', '', line).strip()
-                if line.isdigit():
-                    monto += int(line)
-                    cant += 1
-
-            return monto, cant
-        else:
+        
+        if not self.lista_virtuales:
             return 0, 0
+
+        # Filtra y convierte las líneas a enteros
+        numeros = [
+            int(re.sub(r'[^0-9]', '', line))
+            for line in self.lista_virtuales
+            if re.sub(r'[^0-9]', '', line).isdigit()
+        ]
+
+        monto = sum(numeros)
+        cant = len(numeros)
+
+        return monto, cant
+
 
     def verificar_estado_final(self):
 
         if self.total.get() and self.txt_wisphub.get():
             wisphub = re.sub(r'[^0-9\[\]]', '', self.txt_wisphub.get().strip())
-            total = self.monto_efectivo+self.monto_virtuales
+            total = self.monto_efectivo + self.monto_virtuales
             resultado = int(wisphub) - int(total)
+
+                      
+            self.et_resultado.place_forget()
+            self.et_falta.place_forget()
+            self.entry_falta.place_forget()
+            self.entry_sobra.place_forget()
+            self.et_sobra.place_forget()
 
             if resultado == 0:
                 self.et_resultado.place(relx=0.3, rely=0.80)
-                self.et_falta.place_forget()
-                self.entry_falta.place_forget()
-                self.entry_sobra.place_forget()
-                self.et_sobra.place_forget()
                 self.frame_down.configure(border_color="#27AE60")
                 self.frame_right.configure(border_color="#27AE60")
                 self.frame_up.configure(border_color="#27AE60")
-
             elif resultado < 0:
-
                 self.et_sobra.place(relx=0.32, rely=0.73)
                 self.entry_sobra.place(relx=0.3, rely=0.82)
-                self.et_falta.place_forget()
-                self.entry_falta.place_forget()
-                self.et_resultado.place_forget()
-                self.entry_sobra.place()
-                self.et_sobra.place()
                 self.entry_sobra.configure(state="normal")
                 self.entry_sobra.delete(first_index=0, last_index=ctk.END)
-                self.entry_sobra.insert(index=ctk.END, string=abs(resultado))
+                self.entry_sobra.insert(index=ctk.END, string=str(abs(resultado)))
                 self.entry_sobra.configure(state="disabled")
                 self.frame_down.configure(border_color="#f1c40f")
                 self.frame_right.configure(border_color="#f1c40f")
                 self.frame_up.configure(border_color="#f1c40f")
-
-            elif resultado > 0:
+            else:  # resultado > 0
                 self.et_falta.place(relx=0.32, rely=0.73)
                 self.entry_falta.place(relx=0.3, rely=0.82)
-                self.et_resultado.place_forget()
-                self.entry_sobra.place_forget()
-                self.et_sobra.place_forget()
                 self.entry_falta.configure(state="normal")
                 self.entry_falta.delete(first_index=0, last_index=ctk.END)
-                self.entry_falta.insert(index=ctk.END, string=abs(resultado))
+                self.entry_falta.insert(index=ctk.END, string=str(abs(resultado)))
                 self.entry_falta.configure(state="disabled")
                 self.frame_down.configure(border_color="#e74c3c")
                 self.frame_right.configure(border_color="#e74c3c")
@@ -778,6 +685,7 @@ class Calculadora():
         url = 'https://api.wisphub.net/api/facturas/'
         fecha_actual = datetime.now()
 
+        
         # Formatear la fecha
         fecha_formateada = fecha_actual.strftime('%Y-%m-%d')
         # Define el encabezado con la API key
