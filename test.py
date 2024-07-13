@@ -25,8 +25,8 @@ class Calculadora():
         
        
 
-        self.master.iconbitmap("C:\\Users\\PC\\Documents\\EmmaProgramas\\TestCaja\\img\\cashier2.ico")
-        self.master.update()
+        # self.master.iconbitmap("img/cashier2.ico")
+        # self.master.update()
         self.master.title("Cierre de Caja")
         self.master.resizable(width=False, height=False)
 
@@ -277,7 +277,7 @@ class Calculadora():
     def colocar_widgets_framedown(self):
        
 
-        img3 = ctk.CTkImage(dark_image=Image.open("C:\\Users\\PC\\Documents\\EmmaProgramas\\TestCaja\\img\\cashier.png"),
+        img3 = ctk.CTkImage(dark_image=Image.open("img/cashier.png"),
                             size=(30, 30))
         self.btn_resultado = ctk.CTkButton(self.frame_down,
                                            text="Finalizar Caja",
@@ -403,7 +403,7 @@ class Calculadora():
 
        
 
-        img = ctk.CTkImage(dark_image=Image.open("C:\\Users\\PC\\Documents\\EmmaProgramas\\TestCaja\\img\\upload.png"), size=(30, 30))
+        img = ctk.CTkImage(dark_image=Image.open("img/upload.png"), size=(30, 30))
 
         self.btn_cargar_csv = ctk.CTkButton(master=self.frame_right,
                                             text="Cargar Wisphub",
@@ -602,7 +602,7 @@ class Calculadora():
                 self.txt_box_virtules.insert(ctk.END, lista)
 
          
-            img = ctk.CTkImage(dark_image=Image.open("C:\\Users\\PC\\Documents\\EmmaProgramas\\TestCaja\\img\\up.png"), size=(30, 30))
+            img = ctk.CTkImage(dark_image=Image.open("img/up.png"), size=(30, 30))
             btn_carga_virtuales = ctk.CTkButton(self.toplevel_window,
                                                 height=50,
                                                 width=200,
@@ -649,9 +649,10 @@ class Calculadora():
                         max_importe = valor
                     if valor < min_importe:
                         min_importe = valor
-   
+                    self.lista_virtuales.append(str.title(line))
 
-            self.lista_virtuales.append(str.title(line))
+            
+
           
 
         self.en_virtuales.configure(state="normal")
@@ -687,14 +688,34 @@ class Calculadora():
 
         params = {
             'fecha_pago': fecha_formateada,
-            'estado': 2
+            'estado': 2,
+            'limit': 300,
+            'offset':0
         }
+        results=[]
+        
+        
+        
+        while True:
+                        
+            response = requests.get(url, headers=headers, params=params)
+            
+            if response.status_code == 200:
+                data = response.json()
+                results.extend(data.get('results', []))
 
-        response = requests.get(url, headers=headers, params=params)
-        if response.status_code == 200:
-            data = response.json()
-            results = data.get('results', [])
-            for result in results:
+                if not len(results)==300:
+                    break
+              
+                params['offset']+=300
+            
+            
+            
+            
+            else:
+               results=[]
+
+        for result in results:
                 if result['forma_pago']['nombre'] == 'Trasnferencia Bancaria':
                     
                     txt_auxiliar =  f"{result['cliente']['nombre'].replace('FW ', '').replace('CARP ', '').strip().title()} {result['total_cobrado']:.0f}"
@@ -705,10 +726,7 @@ class Calculadora():
                     if valor < min_importe:
                         min_importe = valor
                     self.lista_wisphub.append(txt_auxiliar)
-        else:
-            print(f"Error: {response.status_code}")
 
-      
         if min_importe != 100000 and max_importe > 0:
             self.lb_max_importe_wisp.configure(
                         text=f"Importe Máximo ${max_importe}")
