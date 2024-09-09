@@ -6,14 +6,16 @@ from PIL import Image
 from rapidfuzz import fuzz
 from CTkMessagebox import CTkMessagebox
 import requests
-from datetime import datetime,timedelta
+from datetime import datetime
 from dotenv import load_dotenv
+
+
 
 class Calculadora():
     color = "#8CC65C"
     font_fira = ("Lato Bold", 22)
     font_sans_20 = ("Lato Bold", 20)
-    font_sans_16 = ("Lato Bold", 18)
+    font_sans_16 = ("Lato Bold", 16)
 
     def __init__(self) -> None:
 
@@ -21,13 +23,14 @@ class Calculadora():
         self.lista_wisphub = []
         self.validate_entry = lambda text: text.isdecimal()
 
-        self.master = ctk.CTk()
+        self.master = ctk.CTk(fg_color="#1a1a1a")
         self.master.geometry("1320x700+12+0")
         self.total_wisphub=self.obtener_total_wisphub()
 
 
         # self.master.iconbitmap("img/cashier2.ico")
         # self.master.update()
+
         self.master.title("Cierre de Caja")
         self.master.resizable(width=False, height=False)
 
@@ -48,9 +51,7 @@ class Calculadora():
         # fecha_actual  = fecha_actual - timedelta(days=1)
 
         fecha_formateada = fecha_actual.strftime('%Y-%m-%d')
-        headers = {
-                    'Authorization': os.getenv("API")
-                }
+        headers = {'Authorization': os.getenv("API")}
 
         params = {
                     'fecha_pago': fecha_formateada,
@@ -58,10 +59,10 @@ class Calculadora():
                     'limit': 300,
                     'offset':0
                 }
+        
         results=[]
-                
-
         total_cobrado=0
+     
         while True:
                                 
             response = requests.get(url, headers=headers, params=params)
@@ -77,6 +78,8 @@ class Calculadora():
                  
             else:
                 results=[]
+
+
         if results:
             for result in results:
                total_cobrado+=int(result.get('total_cobrado',0))
@@ -86,12 +89,14 @@ class Calculadora():
     
 
     def colocar_frames(self):
+        
         self.frame_up = ctk.CTkFrame(
             self.master,
             width=430,
             height=400,
             border_color="#2E86C1",
-            border_width=2)
+            border_width=2
+            )
         self.frame_up.place(x=10, y=10)
 
         self.frame_down = ctk.CTkFrame(
@@ -124,31 +129,34 @@ class Calculadora():
         color_text = "#D0D3D4"
         
         self.txt_wisphub = ctk.CTkEntry(master=self.frame_up,
-                                        width=320,
-                                        height=40,
-                                        fg_color="#282828",
+                                        width=335,
+                                        height=42,
+                                        fg_color="#232323",
                                         border_width=3,
                                         text_color="#4B97E4",
                                         placeholder_text="Final Wisphub",
                                         placeholder_text_color="#616A6B",
                                         border_color="#3D91CB",
-                                        font=("JetBrains Mono", 22),
+                                        font=("Lato Bold", 22),
                                         justify="center")
         
         
         self.txt_wisphub.place(relx=0.05, rely=0.035)
-        self.txt_wisphub.insert(0,f"{self.total_wisphub}")
+        
+        if self.total_wisphub:
+            self.txt_wisphub.insert(0,f"{self.total_wisphub}")
 
 
         img_refresh = ctk.CTkImage(dark_image=Image.open("img/refresh.png"),
                             size=(40, 40))
+        
         self.btn_refresh = ctk.CTkButton(
                             master=self.frame_up,
                             width=40,
                             height=40,
                             text="",
-                            fg_color="#2d2d2d", 
-                            hover_color="#2d2d2d",        
+                            fg_color="#2b2b2b", 
+                            hover_color="#2b2b2b",        
                             border_width=0,    
                             bg_color="transparent",  
                             image=img_refresh,
@@ -175,7 +183,7 @@ class Calculadora():
             label.place(relx=posx, rely=y_label)
 
             entry = self.crear_entry(frame=self.frame_up, ancho=ancho, alto=alto,
-                                    color=self.color, font=self.font_sans_20,
+                                    color="#138d75", font=self.font_sans_20,
                                     validacion=False)
             entry.place(relx=0.15, rely=y_entry)
             entry.configure(text_color=color_text)
@@ -210,10 +218,11 @@ class Calculadora():
                                            width=ancho,
                                            height=alto,
                                            justify="center",
+                                           bg_color="transparent",
                                            placeholder_text_color="#616A6B",
                                            font=font,
                                            border_color=color,
-                                           fg_color="#282828",
+                                           fg_color="#232323",
                                            placeholder_text=place_holder,
 
 
@@ -226,7 +235,7 @@ class Calculadora():
                                            placeholder_text_color="#616A6B",
                                            font=font,
                                            border_color=color,
-                                           fg_color="#282828",
+                                           fg_color="#232323",
                                            validate="key",
                                            validatecommand=(self.master.register(
                                                self.validate_entry), "%S"),
@@ -240,7 +249,7 @@ class Calculadora():
             frame,
             text=text,
             font=font,
-            text_color="#A7A7A7")
+            text_color="#8f8f8f")
 
         return prototipe_label
 
@@ -352,7 +361,7 @@ class Calculadora():
 
     def colocar_widgets_framedown(self):
        
-
+        color_border ="#0e6655"
         img3 = ctk.CTkImage(dark_image=Image.open("img/cashier.png"),
                             size=(30, 30))
         self.btn_resultado = ctk.CTkButton(self.frame_down,
@@ -371,56 +380,57 @@ class Calculadora():
 
         self.btn_resultado.place(relx=0.258, rely=0.05)
 
+        font_label = ("Lato Bold", 14)
         et_monto_virtuales = self.crear_label(
             frame=self.frame_down,
             text="Monto Virtuales",
-            font=("JetBrains Mono", 14))
+            font=font_label)
         et_monto_virtuales.place(relx=0.06, rely=0.24)
         self.txt_monto_virtuales = self.crear_entry(
             frame=self.frame_down,
             ancho=150, alto=20,
-            color="#2e4053",
+            color=color_border,
             font=self.font_sans_16)
         self.txt_monto_virtuales.place(relx=0.05, rely=0.33)
         self.txt_monto_virtuales.configure(
-            state="disabled", text_color="#8CC65C")
+            state="disabled", text_color="#ca6f1e")
 
         et_cantidad_virtuales = self.crear_label(
             frame=self.frame_down,
             text="Cant Virtuales",
-            font=("JetBrains Mono", 14))
+            font=font_label)
         et_cantidad_virtuales.place(relx=0.61, rely=0.24)
         self.txt_cantidad_virtuales = self.crear_entry(
             frame=self.frame_down,
             ancho=150, alto=20,
-            color="#2e4053",
-            font=self.font_sans_16)
+            color=color_border,
+            font=font_label)
         self.txt_cantidad_virtuales.configure(
-            state="disabled", text_color="#8CC65C")
+            state="disabled", text_color="#ca6f1e")
         self.txt_cantidad_virtuales.place(relx=0.6, rely=0.33)
 
         et_cant_efectivo = self.crear_label(frame=self.frame_down,
                                             text="Monto Efectivo",
-                                            font=("JetBrains Mono", 14))
+                                            font=font_label)
         et_cant_efectivo.place(relx=0.06, rely=0.51)
         self.cant_efectivo = self.crear_entry(frame=self.frame_down,
                                               ancho=150, alto=20,
-                                              color="#2e4053",
+                                              color=color_border,
                                               font=self.font_sans_16)
         self.cant_efectivo.place(relx=0.05, rely=0.60)
-        self.cant_efectivo.configure(state="disabled", text_color="#8CC65C")
+        self.cant_efectivo.configure(state="disabled", text_color="#ca6f1e")
 
         et_total = self.crear_label(self.frame_down,
                                     "Monto Total",
-                                    ("JetBrains Mono", 14))
+                                    font_label)
         et_total.place(relx=0.61, rely=0.51)
 
         self.total = self.crear_entry(frame=self.frame_down,
                                       ancho=150, alto=20,
-                                      color="#2e4053",
+                                      color=color_border,
                                       font=self.font_sans_16)
         self.total.place(relx=0.6, rely=0.60)
-        self.total.configure(state="disabled", text_color="#8CC65C")
+        self.total.configure(state="disabled", text_color="#ca6f1e")
 
         self.et_resultado = ctk.CTkEntry(self.frame_down, corner_radius=10, border_color="#27AE60", border_width=3,
                                          justify="center", text_color="#27AE60", width=170, height=40, font=self.font_sans_20)
@@ -446,8 +456,8 @@ class Calculadora():
                                            border_color="#3D91CB",
                                            border_width=3,
                                            text_color="#5DADE2",
-                                           font=("JetBrains Mono", 21),
-                                           fg_color="#282828",
+                                           font=("Lato Bold",24),
+                                           fg_color="#232323",
                                            placeholder_text="Búsqueda...",
                                            placeholder_text_color="#616A6B"
                                            )
@@ -456,9 +466,9 @@ class Calculadora():
         self.entry_busqueda.bind("<KeyRelease>", self.realizar_busqueda)
 
         self.txt_resultado_wisphub = ctk.CTkTextbox(master=self.frame_right,
-                                                    border_color="#8CC65C",
+                                                    border_color="#138d75",
                                                     border_width=3,
-                                                    fg_color="#252525",
+                                                    fg_color="#232323",
                                                     width=405, height=500,
                                                     font=self.font_sans_20,
                                                     )
@@ -467,9 +477,9 @@ class Calculadora():
             state="disabled", text_color="#8BC4FC")
 
         self.txt_resultado_virtuales = ctk.CTkTextbox(master=self.frame_right,
-                                                      border_color="#8CC65C",
+                                                      border_color="#138d75",
                                                       border_width=3,
-                                                      fg_color="#252525",
+                                                      fg_color="#232323",
                                                       width=405, height=500,
                                                       font=self.font_sans_20,
                                                       )
@@ -530,14 +540,15 @@ class Calculadora():
 
         self.en_wisphub = ctk.CTkEntry(self.frame_right,
                                        width=65,
-                                       fg_color="#282828",
+                                       fg_color="#232323",
                                        height=35,
                                        justify="center",
                                        font=self.font_sans_20,
                                        corner_radius=10,
-                                       border_color="#8CC65C",
+                                       border_color="#138d75",
                                        border_width=3,
-                                       text_color="#B3B6B7")
+                                       text_color="#B3B6B7",
+                                       bg_color="transparent")
 
         self.en_wisphub.place(relx=0.22, rely=0.82)
 
@@ -545,14 +556,15 @@ class Calculadora():
 
         self.en_virtuales = ctk.CTkEntry(self.frame_right,
                                          width=65,
-                                         fg_color="#282828",
+                                         fg_color="#232323",
                                          height=35,
                                          justify="center",
                                          font=self.font_sans_20,
                                          corner_radius=10,
-                                         border_color="#8CC65C",
+                                         border_color="#138d75",
                                          border_width=3,
-                                         text_color="#B3B6B7")
+                                         text_color="#B3B6B7",
+                                         bg_color="transparent")
 
         self.en_virtuales.place(relx=0.707, rely=0.82)
 
