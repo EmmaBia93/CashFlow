@@ -24,7 +24,9 @@ class Calculadora():
         self.validate_entry = lambda text: text.isdecimal()
 
         self.master = ctk.CTk(fg_color="#1a1a1a")
-        self.master.geometry("1320x700+12+0")
+        # screen_width = self.master.winfo_screenwidth()
+        # screen_height = self.master.winfo_screenheight()
+        self.master.geometry(f"1320x700+12+0")
         self.total_wisphub=self.obtener_total_wisphub()
 
 
@@ -32,8 +34,9 @@ class Calculadora():
         # self.master.update()
 
         self.master.title("Cierre de Caja")
+        
         self.master.resizable(width=False, height=False)
-
+        
         self.colocar_frames()
         self.colocar_widgets_framedown()
         self.colocar_widgets_frameup()
@@ -776,10 +779,8 @@ class Calculadora():
         url = os.getenv("URL_FACTURAS")
         fecha_actual = datetime.now()
 
-        
-        # Formatear la fecha
         fecha_formateada = fecha_actual.strftime('%Y-%m-%d')
-        # Define el encabezado con la API key
+        
         headers = {
             'Authorization': os.getenv("API")
         }
@@ -806,9 +807,6 @@ class Calculadora():
                     break
               
                 params['offset']+=300
-            
-            
-            
             
             else:
                results=[]
@@ -875,9 +873,7 @@ class Calculadora():
                     contenido_virtuales.sort()
                     contenido_wisphub.sort()
                     
-                    # Convertir a conjuntos para evitar problemas al eliminar mientras se itera
-                    set_virtuales = set(contenido_virtuales)
-                    set_wisphub = set(contenido_wisphub)
+                    
                     
                     op = [95, 90, 85, 80, 75, 70, 65, 60, 55, 50, 45, 40, 35, 30]
                     index = 0
@@ -885,24 +881,18 @@ class Calculadora():
                     while index < len(op) and op[index] >= 45:
                         matches_to_remove = set()
                         
-                        for wisphub in set_wisphub:
-                            for virtual in set_virtuales:
+                        for wisphub in contenido_wisphub:
+                            for virtual in contenido_virtuales:
                                 aux_w = re.sub(r'[0-9]+', '', wisphub).strip()
                                 aux_v = re.sub(r'[0-9]+', '', virtual).strip()
 
                                 if fuzz.ratio(aux_w, aux_v) > op[index]:
-                                    matches_to_remove.add((virtual, wisphub))
-                        
-                        # Remover coincidencias
-                        for virtual, wisphub in matches_to_remove:
-                            if virtual in set_virtuales:
-                                set_virtuales.remove(virtual)
-                            if wisphub in set_wisphub:
-                                set_wisphub.remove(wisphub)
+                                    contenido_virtuales.remove(virtual)
+                                    contenido_wisphub.remove(wisphub)
+
                         
                         index += 1
-                    contenido_virtuales = list(set_virtuales)
-                    contenido_wisphub = list(set_wisphub)
+                 
                 if len(contenido_virtuales) == 0 and len(contenido_wisphub) == 0:
                     CTkMessagebox(master=self.master, title="Resultado", message="Ambas Listas Son Idénticas.",
                                   icon="check", justify="center", font=self.font_sans_20, icon_size=(40, 40))
