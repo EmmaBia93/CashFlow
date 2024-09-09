@@ -474,7 +474,7 @@ class Calculadora():
                                                     )
         self.txt_resultado_wisphub.place(relx=0.02, rely=0.11)
         self.txt_resultado_wisphub.configure(
-            state="disabled", text_color="#8BC4FC")
+            state="disabled", text_color="#f1c40f")
 
         self.txt_resultado_virtuales = ctk.CTkTextbox(master=self.frame_right,
                                                       border_color="#138d75",
@@ -485,7 +485,7 @@ class Calculadora():
                                                       )
         self.txt_resultado_virtuales.place(relx=0.51, rely=0.11)
         self.txt_resultado_virtuales.configure(
-            state="disabled", text_color="#8BC4FC")
+            state="disabled", text_color="#f1c40f")
 
        
 
