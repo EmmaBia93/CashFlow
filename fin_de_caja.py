@@ -24,14 +24,13 @@ class Calculadora():
         self.validate_entry = lambda text: text.isdecimal()
 
         self.master = ctk.CTk(fg_color="#1a1a1a")
-        # screen_width = self.master.winfo_screenwidth()
-        # screen_height = self.master.winfo_screenheight()
-        self.master.geometry(f"1320x700+12+0")
+        
+        self.master.geometry(f"1320x700+125+50")
         self.total_wisphub=self.obtener_total_wisphub()
 
 
-        # self.master.iconbitmap("img/cashier2.ico")
-        # self.master.update()
+        self.master.iconbitmap("C:\\Users\\PC\\Documents\\repositorio\\FindeCaja\\img\\cash.ico")
+        self.master.update()
 
         self.master.title("Cierre de Caja")
         
@@ -51,8 +50,6 @@ class Calculadora():
         fecha_actual = datetime.now()
 
         
-        # fecha_actual  = fecha_actual - timedelta(days=1)
-
         fecha_formateada = fecha_actual.strftime('%Y-%m-%d')
         headers = {'Authorization': os.getenv("API")}
 
@@ -129,14 +126,14 @@ class Calculadora():
         ancho = 300
         alto = 30
         posx = 0.17
-        color_text = "#D0D3D4"
+        color_text = "#dedede"
         
         self.txt_wisphub = ctk.CTkEntry(master=self.frame_up,
                                         width=335,
                                         height=42,
                                         fg_color="#232323",
                                         border_width=3,
-                                        text_color="#4B97E4",
+                                        text_color="#dedede",
                                         placeholder_text="Final Wisphub",
                                         placeholder_text_color="#616A6B",
                                         border_color="#3D91CB",
@@ -150,7 +147,7 @@ class Calculadora():
             self.txt_wisphub.insert(0,f"{self.total_wisphub}")
 
 
-        img_refresh = ctk.CTkImage(dark_image=Image.open("img/refresh.png"),
+        img_refresh = ctk.CTkImage(dark_image=Image.open("C:\\Users\\PC\\Documents\\repositorio\\FindeCaja\\img\\refresh.png"),
                             size=(40, 40))
         
         self.btn_refresh = ctk.CTkButton(
@@ -271,9 +268,12 @@ class Calculadora():
             widget.configure(state="disabled")
 
     
-    def colocar_valores_txt(self, text_box, valor):
+    def colocar_valores_txt(self, text_box, valor,cash):
         text_box.configure(state="normal")
-        text_box.insert(index=ctk.END, string=valor)
+        if cash:
+            text_box.insert(index=ctk.END, string=f"${valor}")
+        else:
+            text_box.insert(index=ctk.END, string=valor)
         text_box.configure(state="disabled")
 
 
@@ -354,18 +354,18 @@ class Calculadora():
             final_500*500+final_1000*1000+final_2000*2000 + final_diezmil*10000
         self.monto_virtuales, cant_virtuales = self.final_monto_virtuales()
 
-        self.colocar_valores_txt(self.txt_cantidad_virtuales, cant_virtuales)
+        self.colocar_valores_txt(self.txt_cantidad_virtuales, cant_virtuales,False)
         self.colocar_valores_txt(
-            self.txt_monto_virtuales, self.monto_virtuales)
-        self.colocar_valores_txt(self.cant_efectivo, self.monto_efectivo)
+            self.txt_monto_virtuales, self.monto_virtuales,True)
+        self.colocar_valores_txt(self.cant_efectivo, self.monto_efectivo,True)
         self.colocar_valores_txt(
-            self.total, (self.monto_efectivo+self.monto_virtuales))
+            self.total, (self.monto_efectivo+self.monto_virtuales),True)
         self.verificar_estado_final()
 
     def colocar_widgets_framedown(self):
        
         color_border ="#0e6655"
-        img3 = ctk.CTkImage(dark_image=Image.open("img/cashier.png"),
+        img3 = ctk.CTkImage(dark_image=Image.open("C:\\Users\\PC\\Documents\\repositorio\\FindeCaja\\img\\cashier.png"),
                             size=(30, 30))
         self.btn_resultado = ctk.CTkButton(self.frame_down,
                                            text="Finalizar Caja",
@@ -396,7 +396,7 @@ class Calculadora():
             font=self.font_sans_16)
         self.txt_monto_virtuales.place(relx=0.05, rely=0.33)
         self.txt_monto_virtuales.configure(
-            state="disabled", text_color="#ca6f1e")
+            state="disabled", text_color="#dedede")
 
         et_cantidad_virtuales = self.crear_label(
             frame=self.frame_down,
@@ -405,11 +405,11 @@ class Calculadora():
         et_cantidad_virtuales.place(relx=0.61, rely=0.24)
         self.txt_cantidad_virtuales = self.crear_entry(
             frame=self.frame_down,
-            ancho=150, alto=20,
+            ancho=150, alto=26,
             color=color_border,
             font=font_label)
         self.txt_cantidad_virtuales.configure(
-            state="disabled", text_color="#ca6f1e")
+            state="disabled", text_color="#dedede")
         self.txt_cantidad_virtuales.place(relx=0.6, rely=0.33)
 
         et_cant_efectivo = self.crear_label(frame=self.frame_down,
@@ -421,7 +421,7 @@ class Calculadora():
                                               color=color_border,
                                               font=self.font_sans_16)
         self.cant_efectivo.place(relx=0.05, rely=0.60)
-        self.cant_efectivo.configure(state="disabled", text_color="#ca6f1e")
+        self.cant_efectivo.configure(state="disabled", text_color="#dedede")
 
         et_total = self.crear_label(self.frame_down,
                                     "Monto Total",
@@ -433,7 +433,7 @@ class Calculadora():
                                       color=color_border,
                                       font=self.font_sans_16)
         self.total.place(relx=0.6, rely=0.60)
-        self.total.configure(state="disabled", text_color="#ca6f1e")
+        self.total.configure(state="disabled", text_color="#dedede")
 
         self.et_resultado = ctk.CTkEntry(self.frame_down, corner_radius=10, border_color="#27AE60", border_width=3,
                                          justify="center", text_color="#27AE60", width=170, height=40, font=self.font_sans_20)
@@ -477,7 +477,7 @@ class Calculadora():
                                                     )
         self.txt_resultado_wisphub.place(relx=0.02, rely=0.11)
         self.txt_resultado_wisphub.configure(
-            state="disabled", text_color="#f1c40f")
+            state="disabled", text_color="#dedede")
 
         self.txt_resultado_virtuales = ctk.CTkTextbox(master=self.frame_right,
                                                       border_color="#138d75",
@@ -488,11 +488,11 @@ class Calculadora():
                                                       )
         self.txt_resultado_virtuales.place(relx=0.51, rely=0.11)
         self.txt_resultado_virtuales.configure(
-            state="disabled", text_color="#f1c40f")
+            state="disabled", text_color="#dedede")
 
        
 
-        img = ctk.CTkImage(dark_image=Image.open("img/upload.png"), size=(30, 30))
+        img = ctk.CTkImage(dark_image=Image.open("C:\\Users\\PC\\Documents\\repositorio\\FindeCaja\\img\\upload.png"), size=(30, 30))
 
         self.btn_cargar_csv = ctk.CTkButton(master=self.frame_right,
                                             text="Cargar Wisphub",
@@ -576,30 +576,30 @@ class Calculadora():
         self.lb_max_importe_virt = ctk.CTkLabel(
             self.frame_right,
             text="Importe Máximo $5000",
-            font=("JetBrains Mono", 12),
+            font=("Lato Bold", 12),
             bg_color="transparent",
-            text_color="#8CC65C")
+            text_color="#ff5733")
 
         self.lb_min_importe_virt = ctk.CTkLabel(
             self.frame_right,
-            font=("JetBrains Mono", 12),
+            font=("Lato Bold", 12),
             bg_color="transparent",
             fg_color=None,
-            text_color="#8CC65C")
+            text_color="#ff5733")
 
         self.lb_max_importe_wisp = ctk.CTkLabel(
             self.frame_right,
             text="Importe Máximo $5000",
-            font=("JetBrains Mono", 12),
+            font=("Lato Bold", 12),
             bg_color="transparent",
-            text_color="#8CC65C")
+            text_color="#ff5733")
 
         self.lb_min_importe_wisp = ctk.CTkLabel(
             self.frame_right,
-            font=("JetBrains Mono", 12),
+            font=("Lato Bold", 12),
             bg_color="transparent",
             fg_color=None,
-            text_color="#8CC65C")
+            text_color="#ff5733")
         
 
     def buscar_coincidencias(self,nombre_completo, input_usuario):
@@ -677,15 +677,16 @@ class Calculadora():
 
         if self.toplevel_window is None or not self.toplevel_window.winfo_exists():
             self.toplevel_window = ctk.CTkToplevel(self.master)
-
+            
             self.toplevel_window.geometry("700x700+300+0")
             self.toplevel_window.title("Carga de Virtuales")
             self.toplevel_window.resizable(width=False, height=False)
-
+            self.toplevel_window.iconbitmap("C:\\Users\\PC\\Documents\\repositorio\\FindeCaja\\img\\cash.ico")
+            self.toplevel_window.update()
             self.txt_box_virtules = ctk.CTkTextbox(self.toplevel_window,
                                                    width=680,
                                                    height=600,
-                                                   font=("JetBrains Mono", 15),
+                                                   font=("Lato Bold", 17),
                                                    fg_color="#202020",
                                                    corner_radius=10,
                                                    border_color="#1f618d",
@@ -702,7 +703,7 @@ class Calculadora():
                 self.txt_box_virtules.insert(ctk.END, lista)
 
          
-            img = ctk.CTkImage(dark_image=Image.open("img/up.png"), size=(30, 30))
+            img = ctk.CTkImage(dark_image=Image.open("C:\\Users\\PC\\Documents\\repositorio\\FindeCaja\\img\\up.png"), size=(30, 30))
             btn_carga_virtuales = ctk.CTkButton(self.toplevel_window,
                                                 height=50,
                                                 width=200,
