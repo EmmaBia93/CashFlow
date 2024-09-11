@@ -25,12 +25,12 @@ class Calculadora():
 
         self.master = ctk.CTk(fg_color="#1a1a1a")
         
-        self.master.geometry(f"1320x700+125+50")
+        self.master.geometry(f"1320x700+12+0")
         self.total_wisphub=self.obtener_total_wisphub()
 
 
-        self.master.iconbitmap("C:\\Users\\PC\\Documents\\repositorio\\FindeCaja\\img\\cash.ico")
-        self.master.update()
+        # self.master.iconbitmap("C:\\Users\\PC\\Documents\\repositorio\\FindeCaja\\img\\cash.ico")
+        # self.master.update()
 
         self.master.title("Cierre de Caja")
         
@@ -54,7 +54,8 @@ class Calculadora():
         headers = {'Authorization': os.getenv("API")}
 
         params = {
-                    'fecha_pago': fecha_formateada,
+                    'fecha_pago__range_0':fecha_formateada,
+                    'fecha_pago__range_1':fecha_formateada,
                     'estado': 2,
                     'limit': 300,
                     'offset':0
@@ -147,7 +148,7 @@ class Calculadora():
             self.txt_wisphub.insert(0,f"{self.total_wisphub}")
 
 
-        img_refresh = ctk.CTkImage(dark_image=Image.open("C:\\Users\\PC\\Documents\\repositorio\\FindeCaja\\img\\refresh.png"),
+        img_refresh = ctk.CTkImage(dark_image=Image.open("img/refresh.png"),
                             size=(40, 40))
         
         self.btn_refresh = ctk.CTkButton(
@@ -365,7 +366,7 @@ class Calculadora():
     def colocar_widgets_framedown(self):
        
         color_border ="#0e6655"
-        img3 = ctk.CTkImage(dark_image=Image.open("C:\\Users\\PC\\Documents\\repositorio\\FindeCaja\\img\\cashier.png"),
+        img3 = ctk.CTkImage(dark_image=Image.open("img/cashier.png"),
                             size=(30, 30))
         self.btn_resultado = ctk.CTkButton(self.frame_down,
                                            text="Finalizar Caja",
@@ -492,7 +493,7 @@ class Calculadora():
 
        
 
-        img = ctk.CTkImage(dark_image=Image.open("C:\\Users\\PC\\Documents\\repositorio\\FindeCaja\\img\\upload.png"), size=(30, 30))
+        img = ctk.CTkImage(dark_image=Image.open("img/upload.png"), size=(30, 30))
 
         self.btn_cargar_csv = ctk.CTkButton(master=self.frame_right,
                                             text="Cargar Wisphub",
@@ -681,8 +682,8 @@ class Calculadora():
             self.toplevel_window.geometry("700x700+300+0")
             self.toplevel_window.title("Carga de Virtuales")
             self.toplevel_window.resizable(width=False, height=False)
-            self.toplevel_window.iconbitmap("C:\\Users\\PC\\Documents\\repositorio\\FindeCaja\\img\\cash.ico")
-            self.toplevel_window.update()
+            # self.toplevel_window.iconbitmap("C:\\Users\\PC\\Documents\\repositorio\\FindeCaja\\img\\cash.ico")
+            # self.toplevel_window.update()
             self.txt_box_virtules = ctk.CTkTextbox(self.toplevel_window,
                                                    width=680,
                                                    height=600,
@@ -703,7 +704,7 @@ class Calculadora():
                 self.txt_box_virtules.insert(ctk.END, lista)
 
          
-            img = ctk.CTkImage(dark_image=Image.open("C:\\Users\\PC\\Documents\\repositorio\\FindeCaja\\img\\up.png"), size=(30, 30))
+            img = ctk.CTkImage(dark_image=Image.open("img/up.png"), size=(30, 30))
             btn_carga_virtuales = ctk.CTkButton(self.toplevel_window,
                                                 height=50,
                                                 width=200,
@@ -787,7 +788,8 @@ class Calculadora():
         }
 
         params = {
-            'fecha_pago': fecha_formateada,
+            'fecha_pago__range_0':fecha_formateada,
+            'fecha_pago__range_1':fecha_formateada,
             'estado': 2,
             'limit': 300,
             'offset':0
