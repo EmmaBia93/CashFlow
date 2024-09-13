@@ -8,6 +8,7 @@ from CTkMessagebox import CTkMessagebox
 import requests
 from datetime import datetime
 from dotenv import load_dotenv
+from collections import Counter
 
 
 
@@ -603,13 +604,11 @@ class Calculadora():
             text_color="#ff5733")
         
 
-    def buscar_coincidencias(self,nombre_completo, input_usuario):
-        
+    def buscar_coincidencias(self, nombre_completo, input_usuario):
         nombre_completo = nombre_completo.lower()
         input_usuario = input_usuario.lower()
         palabras_input = input_usuario.split()
         return all(palabra in nombre_completo for palabra in palabras_input)
-    
 
     def realizar_busqueda(self, *args):
         txt_busqueda = self.entry_busqueda.get().strip()
@@ -624,55 +623,48 @@ class Calculadora():
         self.txt_resultado_virtuales.delete(index1="0.0", index2=ctk.END)
         self.txt_resultado_wisphub.delete(index1="0.0", index2=ctk.END)
 
-        if txt_busqueda:
+        if txt_busqueda:  # Si hay texto de búsqueda
             busqueda_title = txt_busqueda.title()
 
-            if self.lista_virtuales:
-                for line in self.lista_virtuales:
-                    if self.buscar_coincidencias(line,busqueda_title):
-                        request_virtuales += f"{line.strip()}\n"
-                        cont_virtuales += 1
+            # Buscar coincidencias en lista_virtuales
+            for line in self.lista_virtuales:
+                if self.buscar_coincidencias(line, busqueda_title):
+                    request_virtuales += f"{line.strip()}\n"
+                    cont_virtuales += 1
 
-            if self.lista_wisphub:
-                for line in self.lista_wisphub:
-                    if self.buscar_coincidencias(line,busqueda_title):
-                        request_wisphub += f"{line.strip()}\n"
-                        cont_wisphub += 1
+            # Buscar coincidencias en lista_wisphub
+            for line in self.lista_wisphub:
+                if self.buscar_coincidencias(line, busqueda_title):
+                    request_wisphub += f"{line.strip()}\n"
+                    cont_wisphub += 1
 
-            self.en_virtuales.configure(state="normal")
-            self.en_virtuales.delete(first_index="0", last_index=ctk.END)
-            self.en_virtuales.insert(index=ctk.END, string=str(cont_virtuales))
-            self.en_virtuales.configure(state="disabled")
+            # Actualizar contadores
+            self.actualizar_contador(self.en_virtuales, cont_virtuales)
+            self.actualizar_contador(self.en_wisphub, cont_wisphub)
 
-            self.en_wisphub.configure(state="normal")
-            self.en_wisphub.delete(first_index="0", last_index=ctk.END)
-            self.en_wisphub.insert(index=ctk.END, string=str(cont_wisphub))
-            self.en_wisphub.configure(state="disabled")
+            # Insertar resultados en los cuadros de texto
+            self.insertar_resultados(self.txt_resultado_virtuales, request_virtuales, cont_virtuales)
+            self.insertar_resultados(self.txt_resultado_wisphub, request_wisphub, cont_wisphub)
 
-            if request_virtuales:
-                self.txt_resultado_virtuales.insert(ctk.END, request_virtuales)
-            else:
-                self.txt_resultado_virtuales.tag_config("oneline", foreground="#EC7063")
-                self.txt_resultado_virtuales.insert(ctk.END, "\n\n\t          (ಥ﹏ಥ)\n    No se han encontrado coincidencias", "oneline")
-
-            if request_wisphub:
-                self.txt_resultado_wisphub.insert(ctk.END, request_wisphub)
-            else:
-                self.txt_resultado_wisphub.tag_config("oneline", foreground="#EC7063")
-                self.txt_resultado_wisphub.insert(ctk.END, "\n\n\t          (ಥ﹏ಥ)\n    No se han encontrado coincidencias", "oneline")
-        else:
-            self.en_virtuales.configure(state="normal")
-            self.en_virtuales.delete(first_index="0", last_index=ctk.END)
-            self.en_virtuales.insert(index=ctk.END, string=str(len(self.lista_virtuales)))
-            self.en_virtuales.configure(state="disabled")
-
-            self.en_wisphub.configure(state="normal")
-            self.en_wisphub.delete(first_index="0", last_index=ctk.END)
-            self.en_wisphub.insert(index=ctk.END, string=str(len(self.lista_wisphub)))
-            self.en_wisphub.configure(state="disabled")
+        else:  # Si no hay búsqueda, mostrar el total
+            self.actualizar_contador(self.en_virtuales, len(self.lista_virtuales))
+            self.actualizar_contador(self.en_wisphub, len(self.lista_wisphub))
 
         self.txt_resultado_virtuales.configure(state="disabled")
         self.txt_resultado_wisphub.configure(state="disabled")
+
+    def actualizar_contador(self, widget, valor):
+        widget.configure(state="normal")
+        widget.delete(first_index="0", last_index=ctk.END)
+        widget.insert(index=ctk.END, string=str(valor))
+        widget.configure(state="disabled")
+
+    def insertar_resultados(self, widget, texto, contador):
+        if texto:
+            widget.insert(ctk.END, texto)
+        else:
+            widget.tag_config("oneline", foreground="#EC7063")
+            widget.insert(ctk.END, "\n\n\t          (ಥ﹏ಥ)\n    No se han encontrado coincidencias", "oneline")
 
     def windows_virtuales(self):
 
@@ -774,69 +766,76 @@ class Calculadora():
         self.toplevel_window.destroy()
 
     def cargar_csv(self):
-        load_dotenv()
-        self.lista_wisphub.clear()
+        load_dotenv()  # Cargar variables de entorno
+        self.lista_wisphub.clear()  # Limpiar la lista
         max_importe = 0
         min_importe = 100000
         url = os.getenv("URL_FACTURAS")
         fecha_actual = datetime.now()
 
         fecha_formateada = fecha_actual.strftime('%Y-%m-%d')
-        
+
         headers = {
             'Authorization': os.getenv("API")
         }
 
         params = {
-            'fecha_pago__range_0':fecha_formateada,
-            'fecha_pago__range_1':fecha_formateada,
+            'fecha_pago__range_0': fecha_formateada,
+            'fecha_pago__range_1': fecha_formateada,
             'estado': 2,
             'limit': 300,
-            'offset':0
+            'offset': 0
         }
-        results=[]
         
-        
-        
+        results = []
+
         while True:
-                        
             response = requests.get(url, headers=headers, params=params)
-            
+
             if response.status_code == 200:
                 data = response.json()
-                results.extend(data.get('results', []))
+                page_results = data.get('results', [])
 
-                if not len(results)==300:
+                results.extend(page_results)
+
+                # Si hay menos de 300 resultados, no se requiere más paginación
+                if len(page_results) < 300:
                     break
-              
-                params['offset']+=300
-            
+
+                # Incrementar el offset
+                params['offset'] += 300
+
             else:
-               results=[]
+                print(f"Error al obtener los datos: {response.status_code}")
+                results = []  # Vaciar la lista si hay error
+                break
 
+        # Procesar los resultados
         for result in results:
-                if result['forma_pago']['nombre'] == 'Trasnferencia Bancaria':
-                    
-                    txt_auxiliar =  f"{result['cliente']['nombre'].replace('FW ', '').replace('CARP ', '').strip().title()} {result['total_cobrado']:.0f}"
-                    num=f"{result['total_cobrado']:.0f}"
-                    valor = int(num)
-                    if valor > max_importe:
-                        max_importe = valor
-                    if valor < min_importe:
-                        min_importe = valor
-                    self.lista_wisphub.append(txt_auxiliar)
+            if result['forma_pago']['nombre'] == 'Trasnferencia Bancaria':
+                cliente_nombre = result['cliente']['nombre'].replace('FW ', '').replace('CARP ', '').strip().title()
+                total_cobrado = result['total_cobrado']
+                txt_auxiliar = f"{cliente_nombre} {total_cobrado:.0f}"
+                
+                valor = int(total_cobrado)
+                if valor > max_importe:
+                    max_importe = valor
+                if valor < min_importe:
+                    min_importe = valor
+                
+                self.lista_wisphub.append(txt_auxiliar)
 
+        # Actualizar la interfaz gráfica con los valores obtenidos
         if min_importe != 100000 and max_importe > 0:
-            self.lb_max_importe_wisp.configure(
-                        text=f"Importe Máximo ${max_importe}")
-            self.lb_min_importe_wisp.configure(
-                        text=f"Importe Mínimo ${min_importe}")
+            self.lb_max_importe_wisp.configure(text=f"Importe Máximo ${max_importe}")
+            self.lb_min_importe_wisp.configure(text=f"Importe Mínimo ${min_importe}")
             self.lb_min_importe_wisp.place(relx=0.035, rely=0.88)
             self.lb_max_importe_wisp.place(relx=0.035, rely=0.845)
+
+            # Actualizar el campo de cantidad de resultados
             self.en_wisphub.configure(state="normal")
             self.en_wisphub.delete(first_index="0", last_index=ctk.END)
-            self.en_wisphub.insert(
-                    index=ctk.END, string=str(len(self.lista_wisphub)))
+            self.en_wisphub.insert(index=ctk.END, string=str(len(self.lista_wisphub)))
             self.en_wisphub.configure(state="disabled")
                
             
@@ -858,42 +857,41 @@ class Calculadora():
 
     def encontrar_diferencia(self):
 
-        bool_wisphub = (self.txt_resultado_wisphub.get(index1="0.0", index2=ctk.END).strip(
-        ) == "" or self.txt_resultado_wisphub.get(index1="0.0", index2=ctk.END).__contains__("(ノಠ益ಠ)ノ彡┻━┻"))
-        bool_virtuales = (self.txt_resultado_virtuales.get(index1="0.0", index2=ctk.END).strip(
-        ) == "" or self.txt_resultado_virtuales.get(index1="0.0", index2=ctk.END).__contains__("(ノಠ益ಠ)ノ彡┻━┻"))
+        
+        bool_wisphub = (self.txt_resultado_wisphub.get(index1="0.0", index2=ctk.END).strip() == "" or 
+                    self.txt_resultado_wisphub.get(index1="0.0", index2=ctk.END).__contains__("(ಥ﹏ಥ)"))
+        bool_virtuales = (self.txt_resultado_virtuales.get(index1="0.0", index2=ctk.END).strip() == "" or 
+                        self.txt_resultado_virtuales.get(index1="0.0", index2=ctk.END).__contains__("(ಥ﹏ಥ)"))
 
         if not bool_wisphub and not bool_virtuales:
-            contenido_virtuales = self.txt_resultado_virtuales.get(
-                index1="0.0", index2=ctk.END).strip().splitlines()
-            contenido_wisphub = self.txt_resultado_wisphub.get(
-                index1="0.0", index2=ctk.END).strip().splitlines()
+            contenido_virtuales = self.txt_resultado_virtuales.get(index1="0.0", index2=ctk.END).strip().splitlines()
+            contenido_wisphub = self.txt_resultado_wisphub.get(index1="0.0", index2=ctk.END).strip().splitlines()
 
             if len(contenido_virtuales) > 1 or len(contenido_wisphub) > 1:
-
                 if contenido_virtuales and contenido_wisphub:
-
                     contenido_virtuales.sort()
                     contenido_wisphub.sort()
-                    
-                    
-                    
+
                     op = [95, 90, 85, 80, 75, 70, 65, 60, 55, 50, 45, 40, 35, 30]
                     index = 0
-                    
+
                     while index < len(op) and op[index] >= 45:
-                        matches_to_remove = set()
-                        
+                        matches_virtuales = set()
+                        matches_wisphub = set()
+
                         for wisphub in contenido_wisphub:
                             for virtual in contenido_virtuales:
                                 aux_w = re.sub(r'[0-9]+', '', wisphub).strip()
                                 aux_v = re.sub(r'[0-9]+', '', virtual).strip()
 
                                 if fuzz.ratio(aux_w, aux_v) > op[index]:
-                                    contenido_virtuales.remove(virtual)
-                                    contenido_wisphub.remove(wisphub)
+                                    matches_virtuales.add(virtual)
+                                    matches_wisphub.add(wisphub)
 
-                        
+                        # Remover elementos después de finalizar la iteración
+                        contenido_virtuales = [v for v in contenido_virtuales if v not in matches_virtuales]
+                        contenido_wisphub = [w for w in contenido_wisphub if w not in matches_wisphub]
+
                         index += 1
                  
                 if len(contenido_virtuales) == 0 and len(contenido_wisphub) == 0:
