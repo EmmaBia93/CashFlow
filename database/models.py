@@ -22,12 +22,12 @@ class SesionCaja(Base):
     total_clientes = Column(Integer, nullable=False)
     total_importe = Column(Float, nullable=False)
     observaciones = Column(String, nullable=True)
-    transferencias = relationship('ClienteTransferencia', backref='sesion')
+    transferencias = relationship('Transferencias', backref='sesion')
     billetes = relationship('BilleteSesion', backref='sesion')
 
 
-class ClienteTransferencia(Base):
-    __tablename__ = 'clientes_transferencia'
+class Transferencias(Base):
+    __tablename__ = 'transferencias'
     id = Column(Integer, primary_key=True, autoincrement=True)
     nombre_cliente = Column(String, nullable=False)
     importe_transferencia = Column(Float, nullable=False)

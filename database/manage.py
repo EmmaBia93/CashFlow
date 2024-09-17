@@ -1,8 +1,9 @@
 from database.models import Cajero,SesionCaja,BilleteSesion,Transferencias,init_db
-from werkzeug.security import generate_password_hash
+from werkzeug.security import generate_password_hash,check_password_hash
 from datetime import datetime
 from sqlalchemy.orm import joinedload
 from sqlalchemy.exc import NoResultFound
+from sqlalchemy.exc import IntegrityError
 
 Session = init_db()
 
@@ -13,22 +14,41 @@ def get_session():
 def crear_cajero(nombre, usuario, contrasena):
     session = get_session()
     try:
+        # Verificar si el usuario ya existe
+        cajero_existente = session.query(Cajero).filter_by(usuario=usuario).first()
+        if cajero_existente:
+            print(f"Error: El usuario '{usuario}' ya existe.")
+            return False
+
+        # Crear hash de la contraseña
         contrasena_hash = generate_password_hash(contrasena)
-        nuevo_cajero = Cajero(
-            nombre=nombre,
-            usuario=usuario,
-            contrasena_hash=contrasena_hash
-        )   
+
+        # Crear nuevo cajero
+        nuevo_cajero = Cajero(nombre=nombre, usuario=usuario, contrasena_hash=contrasena_hash)
+
+        # Agregar y confirmar los cambios en la base de datos
         session.add(nuevo_cajero)
         session.commit()
         return True
+    except IntegrityError as e:
+        session.rollback()
+        print(f"Error de integridad: {e}")  # Registrar el error para depuración
+        return False
     except Exception as e:
         session.rollback()
+        print(f"Error al crear el cajero: {e}")  # Registrar el error para diagnóstico
         return False
     finally:
         session.close()
 
-
+def verificar_credenciales(usuario, contrasena):
+    session = get_session()
+    cajero = session.query(Cajero).filter_by(usuario=usuario).first()
+    if cajero and check_password_hash(cajero.contrasena_hash, contrasena):
+        return True
+    else:
+        return False 
+    
 def save_sesion(cajero_id:int,total_wisp:float,observaciones:str,transferencias:dict,billetes:dict):
     session = get_session()
 
