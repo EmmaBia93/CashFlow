@@ -18,7 +18,10 @@ def registrar_usuario(entry_nombre, entry_usuario, entry_contrasena, entry_confi
         messagebox.showerror("Error", "Las contraseñas no coinciden")
         return
 
-    crear_cajero(nombre, usuario, contrasena)
+    if crear_cajero(nombre, usuario, contrasena):
+        return True
+    else:
+        return False
 
 def abrir_ventana_registro(ventana_registro):
     # Configuración de la ventana de registro

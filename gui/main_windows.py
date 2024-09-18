@@ -25,25 +25,25 @@ class Calculadora():
         self.validate_entry = lambda text: text.isdecimal()
 
         self.master = ctk.CTk(fg_color="#1a1a1a")
-        
+            
         self.master.geometry(f"1320x700+12+0")
         self.total_wisphub=self.obtener_total_wisphub()
 
 
-        # self.master.iconbitmap("C:\\Users\\PC\\Documents\\repositorio\\FindeCaja\\img\\cash.ico")
-        # self.master.update()
+            # self.master.iconbitmap("C:\\Users\\PC\\Documents\\repositorio\\FindeCaja\\img\\cash.ico")
+            # self.master.update()
 
         self.master.title("Cierre de Caja")
-        
+            
         self.master.resizable(width=False, height=False)
-        
+            
         self.colocar_frames()
         self.colocar_widgets_framedown()
         self.colocar_widgets_frameup()
         self.colocal_widgets_frameright()
 
         self.master.mainloop()
-
+        
 
     def obtener_total_wisphub(self):
         load_dotenv()
@@ -908,5 +908,4 @@ class Calculadora():
                           icon="warning", justify="center", font=self.font_sans_20, icon_size=(40, 40))
 
 
-if __name__ == '__main__':
-    App = Calculadora()
+

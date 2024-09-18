@@ -1,5 +1,5 @@
 from database.models import Cajero,SesionCaja,BilleteSesion,Transferencias,init_db
-from werkzeug.security import generate_password_hash,check_password_hash
+from bcrypt import hashpw,checkpw,gensalt
 from datetime import datetime
 from sqlalchemy.orm import joinedload
 from sqlalchemy.exc import NoResultFound
@@ -21,7 +21,7 @@ def crear_cajero(nombre, usuario, contrasena):
             return False
 
         # Crear hash de la contraseña
-        contrasena_hash = generate_password_hash(contrasena)
+        contrasena_hash = hashpw(contrasena.encode('utf-8'), gensalt())
 
         # Crear nuevo cajero
         nuevo_cajero = Cajero(nombre=nombre, usuario=usuario, contrasena_hash=contrasena_hash)
@@ -44,7 +44,7 @@ def crear_cajero(nombre, usuario, contrasena):
 def verificar_credenciales(usuario, contrasena):
     session = get_session()
     cajero = session.query(Cajero).filter_by(usuario=usuario).first()
-    if cajero and check_password_hash(cajero.contrasena_hash, contrasena):
+    if cajero and checkpw(contrasena.encode('utf-8'),cajero.contrasena_hash):
         return True
     else:
         return False 
