@@ -17,7 +17,7 @@ class InicioSesion:
         self.ventana = None
         self.entry_usuario = None
         self.entry_contrasena = None
-        self.second_windows=True
+        self.ventana_registro=None
 
     def mostrar_ventana(self):
         """Muestra la ventana de inicio de sesión y controla el flujo."""
@@ -41,7 +41,7 @@ class InicioSesion:
         # Botones
         self.btn_login = ctk.CTkButton(self.ventana, text="Iniciar sesión", command=self.iniciar_sesion)
         self.btn_login.pack(pady=15)
-
+        self.btn_login.bind("<Return>",self.acept)
         btn_nuevo_usuario = ctk.CTkButton(self.ventana, text="Registrarse", command=self.abrir_ventana_registro)
         btn_nuevo_usuario.pack(pady=40)
         
@@ -95,32 +95,32 @@ class InicioSesion:
 
 
     def registro(self):
-        
-        self.ventana_registro = ctk.CTkToplevel()
-        self.ventana_registro.title("Registro de nuevo usuario")
-        self.ventana_registro.geometry("400x500")
-        self.ventana_registro.attributes("-topmost", True)
-        # Cargar imagen de usuario
-        imagen_usuario = ctk.CTkImage(Image.open("img/user.png"), size=(100, 100))
-        label_imagen = ctk.CTkLabel(self.ventana_registro, image=imagen_usuario, text="")
-        label_imagen.pack(pady=20)
+        if self.ventana_registro is None or not self.ventana_registro.winfo_exists():
+            self.ventana_registro = ctk.CTkToplevel()
+            self.ventana_registro.title("Registro de nuevo usuario")
+            self.ventana_registro.geometry("400x500")
+            self.ventana_registro.attributes("-topmost", True)
+            # Cargar imagen de usuario
+            imagen_usuario = ctk.CTkImage(Image.open("img/user.png"), size=(100, 100))
+            label_imagen = ctk.CTkLabel(self.ventana_registro, image=imagen_usuario, text="")
+            label_imagen.pack(pady=20)
 
-        # Campos de entrada
-        self.entry_nnombre = ctk.CTkEntry(self.ventana_registro, placeholder_text="Nombre Completo", width=200)
-        self.entry_nusuario = ctk.CTkEntry(self.ventana_registro, placeholder_text="Usuario", width=200)
-        self.entry_ncontrasena = ctk.CTkEntry(self.ventana_registro, placeholder_text="Contraseña", show="*", width=200)
-        self.entry_nconfirmar_contrasena = ctk.CTkEntry(self.ventana_registro, placeholder_text="Confirmar Contraseña", show="*", width=200)
+            # Campos de entrada
+            self.entry_nnombre = ctk.CTkEntry(self.ventana_registro, placeholder_text="Nombre Completo", width=200)
+            self.entry_nusuario = ctk.CTkEntry(self.ventana_registro, placeholder_text="Usuario", width=200)
+            self.entry_ncontrasena = ctk.CTkEntry(self.ventana_registro, placeholder_text="Contraseña", show="*", width=200)
+            self.entry_nconfirmar_contrasena = ctk.CTkEntry(self.ventana_registro, placeholder_text="Confirmar Contraseña", show="*", width=200)
 
-        self.entry_nnombre.pack(pady=10)
-        self.entry_nusuario.pack(pady=10)
-        self.entry_ncontrasena.pack(pady=10)
-        self.entry_nconfirmar_contrasena.pack(pady=10)
+            self.entry_nnombre.pack(pady=10)
+            self.entry_nusuario.pack(pady=10)
+            self.entry_ncontrasena.pack(pady=10)
+            self.entry_nconfirmar_contrasena.pack(pady=10)
 
-        # Botón para registrar
-        btn_registrar = ctk.CTkButton(self.ventana_registro, text="Registrar", 
-                                      command=self.registrar_usuario)
-        btn_registrar.pack(pady=20)
-        self.ventana_registro.focus()
+            # Botón para registrar
+            btn_registrar = ctk.CTkButton(self.ventana_registro, text="Registrar", 
+                                        command=self.registrar_usuario)
+            btn_registrar.pack(pady=20)
+            self.ventana_registro.focus()
     
     def registrar_usuario(self):
         nombre = self.entry_nnombre.get()
