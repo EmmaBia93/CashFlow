@@ -18,7 +18,7 @@ class InicioSesion:
         self.entry_usuario = None
         self.entry_contrasena = None
         self.ventana_registro=None
-
+       
     def mostrar_ventana(self):
         """Muestra la ventana de inicio de sesión y controla el flujo."""
         self.ventana = ctk.CTk()

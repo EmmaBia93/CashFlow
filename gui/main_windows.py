@@ -10,8 +10,10 @@ from datetime import datetime
 from dotenv import load_dotenv
 from collections import Counter
 from database.manage import get_cajero,save_sesion
-from gui.tabla import VentanaTabla
 
+import locale
+from database.manage import get_last_sesions
+from CTkTable import *
 
 class Calculadora():
     color = "#8CC65C"
@@ -25,7 +27,7 @@ class Calculadora():
         self.lista_virtuales = []
         self.lista_wisphub = []
         self.validate_entry = lambda text: text.isdecimal()
-
+        self.tabletix=None
         self.master = ctk.CTk(fg_color="#1a1a1a")
             
         self.master.geometry(f"1320x700+12+0")
@@ -752,10 +754,13 @@ class Calculadora():
 
             self.toplevel_window.focus_set()
 
-    def carga_virtuales(self):
+    def carga_virtuales(self,recovery=None):
         max_importe: int = 0
         min_importe: int = 10000000
-        lista = self.txt_box_virtules.get("1.0", "end")
+        if not recovery:
+            lista = self.txt_box_virtules.get("1.0", "end")
+        else:
+            lista = recovery
         self.lista_virtuales.clear()
         lista_txt = []
         lista_txt = lista.split("\n")
@@ -798,7 +803,8 @@ class Calculadora():
                 text=f"Importe Mínimo ${min_importe}")
             self.lb_max_importe_virt.place(relx=0.8, rely=0.845)
             self.lb_min_importe_virt.place(relx=0.8, rely=0.88)
-        self.toplevel_window.destroy()
+        if not recovery:
+            self.toplevel_window.destroy()
 
     def cargar_csv(self):
         load_dotenv()  # Cargar variables de entorno
@@ -966,8 +972,112 @@ class Calculadora():
 
     def recover(self):
        
-       VentanaTabla()
+       
+        self.windows_recover()
+        print(self.tabletix)
+        
+    def windows_recover(self):
+        self.windows_table=ctk.CTkToplevel()
+        self.sesiones=None
+        self.select_row=0
+        
+        # Configuración de la ventana
+        self.windows_table.title("Tabla de Cierre de Caja")
+        self.windows_table.geometry("1320x700+0+0")
+        self.windows_table.attributes("-topmost", True)
+        ctk.set_appearance_mode("dark")
+        # Crear frame para la tabla
+        self.frame_tabla = ctk.CTkFrame(self.windows_table)
+        self.frame_tabla.pack(padx=20, pady=20, fill="both", expand=True)
+        
+        # Columnas de la tabla
+        self.columnas = [["Cajero", "Fecha de Sesión", "Monto Final Wisphub", "Monto Final Caja", "Estado", "Observaciones"]]
+        
+        # Crear tabla Treeview
+        self.tabla = CTkTable(
+            self.frame_tabla, 
+            justify="center",
+            column=6,
+            row=10,
+            values=self.columnas,
+            header_color="#2e86c1",
+            border_color="#16a085",
+            border_width=3,
+            font=("Lato Bold",20),
+            corner_radius=0,
+            colors=["#e74c3c","#b03a2e"],
+            hover_color="#884ea0",
+            hover=True,
+            command= self.row_selected
+        )
 
+        
 
+        self.tabla.pack(expand=True, fill="both", padx=20, pady=20)
+        self.traer_datos()
+        # Crear frame para los botones
+        self.frame_botones = ctk.CTkFrame(self.windows_table)
+        self.frame_botones.pack(pady=10)
+
+        # Botón Traer
+        self.boton_traer = ctk.CTkButton(self.frame_botones, text="Traer", command=self.reconstruir)
+        self.boton_traer.pack(side="left", padx=10)
+
+        # Botón Cancelar
+        self.boton_cancelar = ctk.CTkButton(self.frame_botones, text="Cancelar", command=self.cancelar)
+        self.boton_cancelar.pack(side="left", padx=10)
+
+      
+
+    def traer_datos(self):
+        locale.setlocale(locale.LC_TIME, 'spanish')
+        # Esta función debe ser implementada para cargar datos en la tabla
+        self.sesiones = get_last_sesions()  # Obtén datos de sesiones (función ficticia)
+        for index,sesion in enumerate(self.sesiones):
+            fecha = sesion.fecha_cierre.strftime('%A %d-%m %H:%M')
+            fecha=str(fecha).capitalize()
+            self.tabla.add_row(index=index+1, values=[[sesion.cajero.nombre],f"{fecha}",[sesion.total_wisphub],[sesion.total_importe],["Correcta"],sesion.observaciones])
+            
+            
+    def cancelar(self):
+        """Función que se ejecuta al presionar el botón 'Cancelar'."""
+        self.windows_table.destroy()  # Cierra la ventana
+    
+    def row_selected(self,e):
+        if e.get("row",0)!=0:
+            self.select_row=e.get("row")
+            
+    def reconstruir(self):
+        if self.select_row!=0:
+            sesion = self.sesiones[self.select_row-1]
+            
+            billetes = [
+            (self.txt_billete100),
+            (self.txt_billete200),
+            (self.txt_billete500),
+            (self.txt_billete1000),
+            (self.txt_billete2000),
+            (self.txt_billetediezmil)
+                                                    ]
+            for index,billete in enumerate(sesion.billetes):
+                self.carga_entry(billetes[index],billete.cantidad)
+            
+            self.carga_entry(self.txt_wisphub,int(sesion.total_wisphub))
+            
+            new_list = ""
+            for line in sesion.transferencias:
+                new_list+=f"{line.nombre_cliente} {int(line.importe_transferencia)}\n"
+            
+            self.carga_virtuales(new_list)
+            
+               
+            self.windows_table.destroy()
+    
+    def carga_entry(self,entry,new_value):
+        entry.delete(first_index="0", last_index=ctk.END)
+        entry.insert(0,new_value)
+        
+        
+        
 if __name__ == '__main__':
     app=Calculadora()

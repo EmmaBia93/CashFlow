@@ -132,10 +132,7 @@ def get_sesion(cajero,fecha):
 def get_last_sesions():
     try:
         session = get_session()
-        sesiones = session.query(
-        SesionCaja.fecha_cierre,
-        Cajero.nombre
-        ).join(Cajero, SesionCaja.cajero_id == Cajero.id).order_by(SesionCaja.fecha_cierre.desc()).limit(5).all()
+        sesiones = session.query(SesionCaja).order_by(SesionCaja.fecha_cierre.desc()).limit(5)
 
         return sesiones
     except:
