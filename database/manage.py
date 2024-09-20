@@ -41,6 +41,18 @@ def crear_cajero(nombre, usuario, contrasena):
     finally:
         session.close()
 
+def get_cajero(nombre:str):
+    session = get_session()
+    try:
+         cajero = session.query(Cajero).filter_by(usuario=nombre).first()
+         if cajero:
+             return cajero
+    except:
+        return None
+    finally:
+        session.close()
+
+
 def verificar_credenciales(usuario, contrasena):
     session = get_session()
     cajero = session.query(Cajero).filter_by(usuario=usuario).first()
@@ -49,20 +61,16 @@ def verificar_credenciales(usuario, contrasena):
     else:
         return False 
     
-def save_sesion(cajero_id:int,total_wisp:float,observaciones:str,transferencias:dict,billetes:dict):
+def save_sesion(cajero_id:int,total_wisp:float,total_sesion:float,transferencias:list,billetes:list,observaciones:str=None):
     session = get_session()
-
+    
     try:
-        nueva_sesion = SesionCaja(
-        cajero_id=cajero_id,
-        fecha_cierre=datetime.now(),
-        total_importe=total_wisp,
-        observaciones=observaciones
-        )
-
+        
+        nueva_sesion = SesionCaja (cajero_id=cajero_id,total_wisphub=total_wisp,total_importe = total_sesion,observaciones=observaciones)
+        
         session.add(nueva_sesion)
         session.flush()
-
+        
         for transferencia in transferencias:
             nueva_transferencia = Transferencias(
                 nombre_cliente=transferencia['nombre'],
@@ -79,10 +87,11 @@ def save_sesion(cajero_id:int,total_wisp:float,observaciones:str,transferencias:
             )
             session.add(nuevo_billete_sesion)
 
-
+        
         session.commit()
         return True
-    except:
+    except Exception as e:
+        print(e)
         return False
     finally:
         session.close()

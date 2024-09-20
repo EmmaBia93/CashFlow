@@ -19,7 +19,7 @@ class SesionCaja(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     cajero_id = Column(Integer, ForeignKey('cajeros.id', ondelete='CASCADE'), nullable=False)
     fecha_cierre = Column(DateTime, default=datetime.now)
-    total_clientes = Column(Integer, nullable=False)
+    total_wisphub = Column(Float, nullable=False)
     total_importe = Column(Float, nullable=False)
     observaciones = Column(String, nullable=True)
     transferencias = relationship('Transferencias', backref='sesion')

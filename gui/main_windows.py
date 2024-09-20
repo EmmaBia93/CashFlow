@@ -9,6 +9,7 @@ import requests
 from datetime import datetime
 from dotenv import load_dotenv
 from collections import Counter
+from database.manage import get_cajero,save_sesion
 
 
 
@@ -18,8 +19,9 @@ class Calculadora():
     font_sans_20 = ("Lato Bold", 20)
     font_sans_16 = ("Lato Bold", 16)
 
-    def __init__(self) -> None:
-
+    def __init__(self,user:str) -> None:
+        self.user=user
+        self.save_ok=False
         self.lista_virtuales = []
         self.lista_wisphub = []
         self.validate_entry = lambda text: text.isdecimal()
@@ -338,6 +340,7 @@ class Calculadora():
                 self.frame_up.configure(border_color="#e74c3c")
 
     def realizar_calculos(self):
+        self.save_ok=True
         self.borrar_contenido_resultados()
         final_100 = int(self.txt_billete100.get()
                         ) if self.txt_billete100.get().isdigit() else 0
@@ -383,7 +386,39 @@ class Calculadora():
                                            image=img3,
                                            command=self.realizar_calculos)
 
-        self.btn_resultado.place(relx=0.258, rely=0.05)
+        self.btn_resultado.place(relx=0.3, rely=0.05)
+
+        img_save = ctk.CTkImage(dark_image=Image.open("img/save.png"),
+                            size=(30, 30))
+        self.btn_save = ctk.CTkButton(
+                            master=self.frame_down,
+                            width=40,
+                            height=40,
+                            text="",
+                            fg_color="#2b2b2b", 
+                            hover_color="#2b2b2b",        
+                            border_width=0,    
+                            bg_color="transparent",  
+                            image=img_save,
+                            command=self.save_info  
+                        )
+        self.btn_save.place(relx=0.06, rely=0.05)
+
+
+        img_recover = ctk.CTkImage(dark_image=Image.open("img/recover.png"), size=(30, 30))
+        self.btn_recover =  ctk.CTkButton(
+                            master=self.frame_down,
+                            width=40,
+                            height=40,
+                            text="",
+                            fg_color="#2b2b2b", 
+                            hover_color="#2b2b2b",        
+                            border_width=0,    
+                            bg_color="transparent",  
+                            image=img_recover,
+                            command=lambda:self.refresh_entry(self.txt_wisphub)  
+                        )
+        self.btn_recover.place(relx=0.82, rely=0.05)
 
         font_label = ("Lato Bold", 14)
         et_monto_virtuales = self.crear_label(
@@ -907,5 +942,24 @@ class Calculadora():
             CTkMessagebox(master=self.master, title="ATENCIÓN!!", message="Nada para Comparar!!!",
                           icon="warning", justify="center", font=self.font_sans_20, icon_size=(40, 40))
 
+    def save_info(self):
+        if self.save_ok:
+            monto_wisp=self.txt_wisphub.get()
+            total = re.sub(r'\$', '',self.total.get())
+            
+            billetes = [{'denominacion':100,'cantidad':self.txt_billete100.get() if self.txt_billete100.get() else 0 },
+                        {'denominacion':200,'cantidad':self.txt_billete200.get() if self.txt_billete200.get() else 0 },
+                        {'denominacion':500,'cantidad':self.txt_billete500.get() if self.txt_billete500.get() else 0 },
+                        {'denominacion':1000,'cantidad':self.txt_billete1000.get() if self.txt_billete1000.get() else 0 },
+                        {'denominacion':2000,'cantidad':self.txt_billete2000.get() if self.txt_billete2000.get() else 0 },
+                        {'denominacion':10000,'cantidad':self.txt_billetediezmil.get() if self.txt_billetediezmil.get() else 0 },]
+            transferencias =[]
 
-
+            for line in self.lista_virtuales:
+                transfer = {'nombre':re.sub(r'\d', '', line).strip(),'importe': re.sub(r'[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ]', '', line).strip()}
+                transferencias.append(transfer)
+            cajero= get_cajero(self.user)
+        
+            save_sesion(cajero_id=int(cajero.id),total_wisp=float(monto_wisp),total_sesion=float(total),transferencias=transferencias,billetes=billetes,observaciones="No Falta nada")
+if __name__ == '__main__':
+    app=Calculadora()

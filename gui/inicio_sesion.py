@@ -23,7 +23,7 @@ class InicioSesion:
         """Muestra la ventana de inicio de sesión y controla el flujo."""
         self.ventana = ctk.CTk()
         self.ventana.title("Inicio de sesión")
-        self.ventana.geometry("400x500+750+150")
+        self.ventana.geometry("400x500+500+100")
         self.ventana.resizable(width=False,height=False)
 
         # Cargar imagen de usuario (asegúrate de tener una imagen llamada 'usuario.png')
@@ -69,7 +69,7 @@ class InicioSesion:
            
             self.inicio_exitoso = True
             self.ventana.destroy()
-            principal = Calculadora()
+            principal = Calculadora(usuario)
             
         else:
             self.intentos_fallidos += 1
