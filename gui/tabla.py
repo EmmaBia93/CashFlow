@@ -6,24 +6,23 @@ from ttkbootstrap.constants import *
 import tkinter.font as tkFont
 from database.manage import get_last_sesions
 
-class VentanaTabla(ctk.CTk):
-    def __init__(self, master=None):
-        super().__init__(master)
+class VentanaTabla(ctk.CTkToplevel):
+    def __init__(self):
+        super().__init__()
         
         # Configuración de la ventana
         self.title("Tabla de Cierre de Caja")
         self.geometry("1320x700+0+0")
         
-        # Estilo ttkbootstrap
-        self.style = Style("darkly")  
+        # # Estilo ttkbootstrap
+        # self.style = Style("darkly")  
         
-        self.font_heading = tkFont.Font(family="Lato Bold", size=12, weight="bold")  
-        self.font_cell = tkFont.Font(family="Lato", size=10, weight="normal")
-            # Aplicar fuente personalizada a los encabezados y celdas
-        self.style.configure("Treeview.Heading", font=self.font_heading)  # Para los encabezados
-        self.style.configure("Treeview", font=self.font_cell)  # Para las celdas
-
-
+        # self.font_heading = tkFont.Font(family="Lato Bold", size=12, weight="bold")  
+        # self.font_cell = tkFont.Font(family="Lato", size=10, weight="normal")
+        
+        # # Aplicar fuente personalizada a los encabezados y celdas
+        # self.style.configure("Treeview.Heading", font=self.font_heading)  
+        # self.style.configure("Treeview", font=self.font_cell)  
 
         # Crear frame para la tabla
         self.frame_tabla = ctk.CTkFrame(self)
@@ -35,8 +34,8 @@ class VentanaTabla(ctk.CTk):
             {"text": "Fecha de Sesión", "stretch": True},
             {"text": "Monto Final Wisphub", "stretch": True},
             {"text": "Monto Final Caja", "stretch": True},
-            {"text": "Estado", "stretch": True,
-             "text": "Observaciones", "stretch": True}
+            {"text": "Estado", "stretch": True},
+            {"text": "Observaciones", "stretch": True}
         ]
         
         # Crear tabla
@@ -45,11 +44,8 @@ class VentanaTabla(ctk.CTk):
             coldata=self.columnas,
             paginated=False,
             searchable=True,
-            bootstyle=PRIMARY,
-            
             
         )
-        self.align_headings_center()
        
         self.tabla.pack(fill=BOTH, expand=YES, padx=10, pady=10)
         
@@ -71,18 +67,11 @@ class VentanaTabla(ctk.CTk):
         for i in range(len(self.columnas)):
             self.tabla.align_heading_center(cid=i)
 
-
     def traer_datos(self):
-       sesiones = get_last_sesions()
-       for sesion in sesiones:
-           print(sesion.cajero.nombre)
+        sesiones = get_last_sesions()
+        for sesion in sesiones:
+            print(sesion.cajero.nombre)
 
     def cancelar(self):
         """Función que se ejecuta al presionar el botón 'Cancelar'."""
-        # Puedes definir qué hacer al cancelar
         self.destroy()  # Cierra la ventana
-
-# Ejecutar la ventana
-if __name__ == "__main__":
-    app = VentanaTabla()
-    app.mainloop()

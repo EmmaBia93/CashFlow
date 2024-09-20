@@ -10,7 +10,7 @@ from datetime import datetime
 from dotenv import load_dotenv
 from collections import Counter
 from database.manage import get_cajero,save_sesion
-
+from gui.tabla import VentanaTabla
 
 
 class Calculadora():
@@ -416,7 +416,7 @@ class Calculadora():
                             border_width=0,    
                             bg_color="transparent",  
                             image=img_recover,
-                            command=lambda:self.refresh_entry(self.txt_wisphub)  
+                            command=self.recover  
                         )
         self.btn_recover.place(relx=0.82, rely=0.05)
 
@@ -961,5 +961,13 @@ class Calculadora():
             cajero= get_cajero(self.user)
         
             save_sesion(cajero_id=int(cajero.id),total_wisp=float(monto_wisp),total_sesion=float(total),transferencias=transferencias,billetes=billetes,observaciones="No Falta nada")
+
+
+
+    def recover(self):
+       
+       VentanaTabla()
+
+
 if __name__ == '__main__':
     app=Calculadora()
