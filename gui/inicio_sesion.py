@@ -7,7 +7,7 @@ from gui.main_windows import Calculadora
 from gui.registro import RegistroUsuario
 from tkinter import messagebox
 from database.manage import crear_cajero
-from threading import Thread
+
 
 class InicioSesion:
     def __init__(self):
@@ -18,7 +18,7 @@ class InicioSesion:
         self.entry_usuario = None
         self.entry_contrasena = None
         self.ventana_registro=None
-       
+
     def mostrar_ventana(self):
         """Muestra la ventana de inicio de sesión y controla el flujo."""
         self.ventana = ctk.CTk()

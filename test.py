@@ -1,15 +1,18 @@
-import customtkinter
-from CTkTable import *
+def verificar_caja(importe_caja, importe_dinero):
+    diferencia = importe_caja - importe_dinero
+    
+    # Mapeo de condiciones a mensajes
+    mensajes = {
+        0: "Caja correcta",
+        -1: "Falta",
+        1: "Sobra"
+    }
 
-root = customtkinter.CTk()
+    # Determinar el mensaje según la diferencia
+    return mensajes[(diferencia > 0) - (diferencia < 0)]
 
-value = [[1,2,3,4,5],
-         [1,2,3,4,5],
-         [1,2,3,4,5],
-         [1,2,3,4,5],
-         [1,2,3,4,5]]
-
-table = CTkTable(master=root, row=5, column=5, values=value)
-table.pack(expand=True, fill="both", padx=20, pady=20)
-
-root.mainloop()
+# Ejemplo de uso
+importe_caja = 1000  # Cambia estos valores según necesites
+importe_dinero = 1000
+resultado = verificar_caja(importe_caja, importe_dinero)
+print(resultado)

@@ -10,6 +10,8 @@ from datetime import datetime
 from dotenv import load_dotenv
 from collections import Counter
 from database.manage import get_cajero,save_sesion
+import tkinter as tk
+from tkinter import ttk
 
 import locale
 from database.manage import get_last_sesions
@@ -803,6 +805,9 @@ class Calculadora():
                 text=f"Importe Mínimo ${min_importe}")
             self.lb_max_importe_virt.place(relx=0.8, rely=0.845)
             self.lb_min_importe_virt.place(relx=0.8, rely=0.88)
+        else:
+            self.lb_max_importe_virt.place_forget()
+            self.lb_min_importe_virt.place_forget()
         if not recovery:
             self.toplevel_window.destroy()
 
@@ -974,7 +979,7 @@ class Calculadora():
        
        
         self.windows_recover()
-        print(self.tabletix)
+       
         
     def windows_recover(self):
         self.windows_table=ctk.CTkToplevel()
@@ -982,50 +987,86 @@ class Calculadora():
         self.select_row=0
         
         # Configuración de la ventana
-        self.windows_table.title("Tabla de Cierre de Caja")
+        self.windows_table.title("Sesiones de Cierre de Caja")
         self.windows_table.geometry("1320x700+0+0")
         self.windows_table.attributes("-topmost", True)
         ctk.set_appearance_mode("dark")
+
+
+
+        self.estilos = ttk.Style()
+        self.estilos.theme_use("alt")
+
+        # Fondo de la tabla y líneas
+        self.estilos.configure("Treeview",
+                             background="#2b2b2b",  # Fondo oscuro
+                             foreground="white",    # Texto blanco
+                             rowheight=25,          # Altura de cada fila
+                             fieldbackground="#2b2b2b",  # Fondo de las celdas
+                             )
+
+
+        
+
+        # Estilo de los encabezados
+        self.estilos.configure("Treeview.Heading",
+                             background="#138d75",  # Fondo verde oscuro
+                             foreground="white",    # Texto blanco
+                             font=("Lato", 15, "bold"),  # Fuente de los encabezados
+                            )
+        
+                             
+        # Color cuando se selecciona una fila
+        self.estilos.map("Treeview",
+                       background=[("selected", "#3D91CB")],  # Fondo al seleccionar
+                       foreground=[("selected", "white")])    # Texto al seleccionar
+
+
+
         # Crear frame para la tabla
-        self.frame_tabla = ctk.CTkFrame(self.windows_table)
-        self.frame_tabla.pack(padx=20, pady=20, fill="both", expand=True)
+        self.tabla = ttk.Treeview(self.windows_table, columns=("Cajero", "Fecha de Sesión", "Monto Final Wisphub", "Monto Final Caja", "Estado", "Observaciones"), show='headings')
         
-        # Columnas de la tabla
-        self.columnas = [["Cajero", "Fecha de Sesión", "Monto Final Wisphub", "Monto Final Caja", "Estado", "Observaciones"]]
-        
-        # Crear tabla Treeview
-        self.tabla = CTkTable(
-            self.frame_tabla, 
-            justify="center",
-            column=6,
-            row=10,
-            values=self.columnas,
-            header_color="#2e86c1",
-            border_color="#16a085",
-            border_width=3,
-            font=("Lato Bold",20),
-            corner_radius=0,
-            colors=["#e74c3c","#b03a2e"],
-            hover_color="#884ea0",
-            hover=True,
-            command= self.row_selected
-        )
+        # Configurar las columnas
+        for col in self.tabla["columns"]:
+            self.tabla.heading(col, text=col)
+            self.tabla.column(col, anchor="center")
 
-        
+        # Agregar scrollbars
+        self.scroll_y = ttk.Scrollbar(self.tabla, orient="vertical", command=self.tabla.yview)
+        self.scroll_y.pack(side='right', fill='y')
+        self.tabla.configure(yscrollcommand=self.scroll_y.set)
 
-        self.tabla.pack(expand=True, fill="both", padx=20, pady=20)
+        self.scroll_x = ttk.Scrollbar(self.tabla, orient="horizontal", command=self.tabla.xview)
+        self.scroll_x.pack(side='bottom', fill='x')
+        self.tabla.configure(xscrollcommand=self.scroll_x.set)
+
+        self.tabla.pack(expand=True, fill="both")
+
+        # Cargar datos en la tabla
         self.traer_datos()
         # Crear frame para los botones
-        self.frame_botones = ctk.CTkFrame(self.windows_table)
-        self.frame_botones.pack(pady=10)
+        self.frame_botones = ctk.CTkFrame(self.windows_table,height=150)
+        self.frame_botones.pack(pady=30)
 
+
+        separator = ttk.Separator(self.windows_table, orient='horizontal')
+        separator.pack(fill='x')
         # Botón Traer
-        self.boton_traer = ctk.CTkButton(self.frame_botones, text="Traer", command=self.reconstruir)
-        self.boton_traer.pack(side="left", padx=10)
+        self.boton_traer = ctk.CTkButton(self.frame_botones,
+                                            text="Traer",
+                                            command=self.reconstruir,
+                                            bg_color="#58a151",
+                                            border_color="#356031",
+                                            height=50
+                                            )
+        self.boton_traer.pack(side="left", padx=30,pady=20)
 
         # Botón Cancelar
-        self.boton_cancelar = ctk.CTkButton(self.frame_botones, text="Cancelar", command=self.cancelar)
-        self.boton_cancelar.pack(side="left", padx=10)
+        self.boton_cancelar = ctk.CTkButton(self.frame_botones,
+                                             text="Cancelar",
+                                             command=self.cancelar,
+                                             height=50)
+        self.boton_cancelar.pack(side="left", padx=30,pady=20)
 
       
 
@@ -1036,42 +1077,60 @@ class Calculadora():
         for index,sesion in enumerate(self.sesiones):
             fecha = sesion.fecha_cierre.strftime('%A %d-%m %H:%M')
             fecha=str(fecha).capitalize()
-            self.tabla.add_row(index=index+1, values=[[sesion.cajero.nombre],f"{fecha}",[sesion.total_wisphub],[sesion.total_importe],["Correcta"],sesion.observaciones])
-            
-            
+            diferencia = sesion.total_wisphub - sesion.total_importe
+            mensajes = {
+                0: "Caja correcta",
+                -1: "Sobra",
+                1: "Falta"
+                    }
+            estado = mensajes[(diferencia > 0) - (diferencia < 0)]
+            self.tabla.insert("", tk.END, values=(sesion.cajero.nombre,f"{fecha}",sesion.total_wisphub,sesion.total_importe,estado,sesion.observaciones))
+            for item in self.tabla.get_children():
+                self.tabla.item(item, tags=("Custom.Row",))  # Aplica un tag a la fila
+
+        # Cambiar la fuente de las filas
+        self.tabla.tag_configure("Custom.Row", font=("Lato Bold", 13)) 
+
+       
     def cancelar(self):
         """Función que se ejecuta al presionar el botón 'Cancelar'."""
         self.windows_table.destroy()  # Cierra la ventana
     
-    def row_selected(self,e):
-        if e.get("row",0)!=0:
-            self.select_row=e.get("row")
-            
+    
     def reconstruir(self):
-        if self.select_row!=0:
-            sesion = self.sesiones[self.select_row-1]
-            
-            billetes = [
-            (self.txt_billete100),
-            (self.txt_billete200),
-            (self.txt_billete500),
-            (self.txt_billete1000),
-            (self.txt_billete2000),
-            (self.txt_billetediezmil)
-                                                    ]
-            for index,billete in enumerate(sesion.billetes):
-                self.carga_entry(billetes[index],billete.cantidad)
-            
-            self.carga_entry(self.txt_wisphub,int(sesion.total_wisphub))
-            
-            new_list = ""
-            for line in sesion.transferencias:
-                new_list+=f"{line.nombre_cliente} {int(line.importe_transferencia)}\n"
-            
-            self.carga_virtuales(new_list)
-            
-               
-            self.windows_table.destroy()
+            seleccion = self.tabla.selection()
+            if seleccion:
+                # Obtener el primer elemento seleccionado
+                item_id = seleccion[0]
+                # Obtener el índice de la fila seleccionada
+                indice = self.tabla.index(item_id)
+                
+                sesion = self.sesiones[indice]
+                
+                billetes = [
+                (self.txt_billete100),
+                (self.txt_billete200),
+                (self.txt_billete500),
+                (self.txt_billete1000),
+                (self.txt_billete2000),
+                (self.txt_billetediezmil)
+                                                        ]
+                for index,billete in enumerate(sesion.billetes):
+                    self.carga_entry(billetes[index],billete.cantidad)
+                
+                self.carga_entry(self.txt_wisphub,int(sesion.total_wisphub))
+                
+                if sesion.transferencias:
+                    new_list = ""
+                    for line in sesion.transferencias:
+                        new_list+=f"{line.nombre_cliente} {int(line.importe_transferencia)}\n"
+                    
+                    self.carga_virtuales(new_list)
+                else:
+                     self.carga_virtuales("\n")
+                
+                
+                self.windows_table.destroy()
     
     def carga_entry(self,entry,new_value):
         entry.delete(first_index="0", last_index=ctk.END)
