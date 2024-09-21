@@ -1,18 +1,21 @@
-def verificar_caja(importe_caja, importe_dinero):
-    diferencia = importe_caja - importe_dinero
-    
-    # Mapeo de condiciones a mensajes
-    mensajes = {
-        0: "Caja correcta",
-        -1: "Falta",
-        1: "Sobra"
-    }
+import re
 
-    # Determinar el mensaje según la diferencia
-    return mensajes[(diferencia > 0) - (diferencia < 0)]
+def validar_contrasena(contrasena, confirmacion):
+    # Regex para validar la contraseña
+    regex = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,}$"
+    
+    # Verificar que ambas contraseñas coincidan
+    if contrasena != confirmacion:
+        return "Las contraseñas no coinciden."
+
+    # Verificar que la contraseña cumpla con los requisitos
+    if not re.match(regex, contrasena):
+        return "La contraseña no cumple con los requisitos."
+
+    return "Contraseña válida."
 
 # Ejemplo de uso
-importe_caja = 1000  # Cambia estos valores según necesites
-importe_dinero = 1000
-resultado = verificar_caja(importe_caja, importe_dinero)
+contrasena = "Emma1234#"
+confirmacion = "Emma1234#"
+resultado = validar_contrasena(contrasena, confirmacion)
 print(resultado)

@@ -32,14 +32,14 @@ class Calculadora():
         self.tabletix=None
         self.master = ctk.CTk(fg_color="#1a1a1a")
             
-        self.master.geometry(f"1320x700+12+0")
+        self.master.geometry(f"1320x700+130+50")
         self.total_wisphub=self.obtener_total_wisphub()
 
 
             # self.master.iconbitmap("C:\\Users\\PC\\Documents\\repositorio\\FindeCaja\\img\\cash.ico")
             # self.master.update()
 
-        self.master.title("Cierre de Caja")
+        self.master.title(f"Cierre de Caja - {self.user}")
             
         self.master.resizable(width=False, height=False)
             
@@ -372,7 +372,8 @@ class Calculadora():
         self.verificar_estado_final()
 
     def colocar_widgets_framedown(self):
-       
+        self.windows_table = None
+        self.windows_obs = None
         color_border ="#0e6655"
         img3 = ctk.CTkImage(dark_image=Image.open("img/cashier.png"),
                             size=(30, 30))
@@ -390,9 +391,9 @@ class Calculadora():
                                            image=img3,
                                            command=self.realizar_calculos)
 
-        self.btn_resultado.place(relx=0.3, rely=0.05)
+        self.btn_resultado.place(relx=0.27, rely=0.05)
 
-        img_save = ctk.CTkImage(dark_image=Image.open("img/save.png"),
+        img_save = ctk.CTkImage(dark_image=Image.open("img/save2.png"),
                             size=(30, 30))
         self.btn_save = ctk.CTkButton(
                             master=self.frame_down,
@@ -954,24 +955,26 @@ class Calculadora():
                           icon="warning", justify="center", font=self.font_sans_20, icon_size=(40, 40))
 
     def save_info(self):
-        if self.save_ok:
-            monto_wisp=self.txt_wisphub.get()
-            total = re.sub(r'\$', '',self.total.get())
+        self.windows_observaciones()
+        # if self.save_ok and self.txt_wisphub.get():
             
-            billetes = [{'denominacion':100,'cantidad':self.txt_billete100.get() if self.txt_billete100.get() else 0 },
-                        {'denominacion':200,'cantidad':self.txt_billete200.get() if self.txt_billete200.get() else 0 },
-                        {'denominacion':500,'cantidad':self.txt_billete500.get() if self.txt_billete500.get() else 0 },
-                        {'denominacion':1000,'cantidad':self.txt_billete1000.get() if self.txt_billete1000.get() else 0 },
-                        {'denominacion':2000,'cantidad':self.txt_billete2000.get() if self.txt_billete2000.get() else 0 },
-                        {'denominacion':10000,'cantidad':self.txt_billetediezmil.get() if self.txt_billetediezmil.get() else 0 },]
-            transferencias =[]
+        #     monto_wisp=self.txt_wisphub.get()
+        #     total = re.sub(r'\$', '',self.total.get())
+            
+        #     billetes = [{'denominacion':100,'cantidad':self.txt_billete100.get() if self.txt_billete100.get() else 0 },
+        #                 {'denominacion':200,'cantidad':self.txt_billete200.get() if self.txt_billete200.get() else 0 },
+        #                 {'denominacion':500,'cantidad':self.txt_billete500.get() if self.txt_billete500.get() else 0 },
+        #                 {'denominacion':1000,'cantidad':self.txt_billete1000.get() if self.txt_billete1000.get() else 0 },
+        #                 {'denominacion':2000,'cantidad':self.txt_billete2000.get() if self.txt_billete2000.get() else 0 },
+        #                 {'denominacion':10000,'cantidad':self.txt_billetediezmil.get() if self.txt_billetediezmil.get() else 0 },]
+        #     transferencias =[]
 
-            for line in self.lista_virtuales:
-                transfer = {'nombre':re.sub(r'\d', '', line).strip(),'importe': re.sub(r'[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ]', '', line).strip()}
-                transferencias.append(transfer)
-            cajero= get_cajero(self.user)
+        #     for line in self.lista_virtuales:
+        #         transfer = {'nombre':re.sub(r'\d', '', line).strip(),'importe': re.sub(r'[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ]', '', line).strip()}
+        #         transferencias.append(transfer)
+        #     cajero= get_cajero(self.user)
         
-            save_sesion(cajero_id=int(cajero.id),total_wisp=float(monto_wisp),total_sesion=float(total),transferencias=transferencias,billetes=billetes,observaciones="No Falta nada")
+        #     save_sesion(cajero_id=int(cajero.id),total_wisp=float(monto_wisp),total_sesion=float(total),transferencias=transferencias,billetes=billetes,observaciones="No Falta nada")
 
 
 
@@ -982,93 +985,107 @@ class Calculadora():
        
         
     def windows_recover(self):
-        self.windows_table=ctk.CTkToplevel()
-        self.sesiones=None
-        self.select_row=0
-        
-        # Configuración de la ventana
-        self.windows_table.title("Sesiones de Cierre de Caja")
-        self.windows_table.geometry("1320x700+0+0")
-        self.windows_table.attributes("-topmost", True)
-        ctk.set_appearance_mode("dark")
+        if self.windows_table == None or not self.windows_table.winfo_exists():
+            self.windows_table=ctk.CTkToplevel(self.master)
+            self.sesiones=None
+            self.select_row=0
+            
+            # Configuración de la ventana
+            self.windows_table.title("Sesiones de Cierre de Caja")
+            self.windows_table.geometry("1320x700+130+50")
+            self.windows_table.attributes("-topmost", True)
+            ctk.set_appearance_mode("dark")
 
 
 
-        self.estilos = ttk.Style()
-        self.estilos.theme_use("alt")
+            self.estilos = ttk.Style()
+            self.estilos.theme_use("alt")
 
-        # Fondo de la tabla y líneas
-        self.estilos.configure("Treeview",
-                             background="#2b2b2b",  # Fondo oscuro
-                             foreground="white",    # Texto blanco
-                             rowheight=25,          # Altura de cada fila
-                             fieldbackground="#2b2b2b",  # Fondo de las celdas
-                             )
-
-
-        
-
-        # Estilo de los encabezados
-        self.estilos.configure("Treeview.Heading",
-                             background="#138d75",  # Fondo verde oscuro
-                             foreground="white",    # Texto blanco
-                             font=("Lato", 15, "bold"),  # Fuente de los encabezados
-                            )
-        
-                             
-        # Color cuando se selecciona una fila
-        self.estilos.map("Treeview",
-                       background=[("selected", "#3D91CB")],  # Fondo al seleccionar
-                       foreground=[("selected", "white")])    # Texto al seleccionar
+            # Fondo de la tabla y líneas
+            self.estilos.configure("Treeview",
+                                background="#2b2b2b",  # Fondo oscuro
+                                foreground="white",    # Texto blanco
+                                rowheight=25,          # Altura de cada fila
+                                fieldbackground="#2b2b2b",  # Fondo de las celdas
+                                )
 
 
+            
 
-        # Crear frame para la tabla
-        self.tabla = ttk.Treeview(self.windows_table, columns=("Cajero", "Fecha de Sesión", "Monto Final Wisphub", "Monto Final Caja", "Estado", "Observaciones"), show='headings')
-        
-        # Configurar las columnas
-        for col in self.tabla["columns"]:
-            self.tabla.heading(col, text=col)
-            self.tabla.column(col, anchor="center")
-
-        # Agregar scrollbars
-        self.scroll_y = ttk.Scrollbar(self.tabla, orient="vertical", command=self.tabla.yview)
-        self.scroll_y.pack(side='right', fill='y')
-        self.tabla.configure(yscrollcommand=self.scroll_y.set)
-
-        self.scroll_x = ttk.Scrollbar(self.tabla, orient="horizontal", command=self.tabla.xview)
-        self.scroll_x.pack(side='bottom', fill='x')
-        self.tabla.configure(xscrollcommand=self.scroll_x.set)
-
-        self.tabla.pack(expand=True, fill="both")
-
-        # Cargar datos en la tabla
-        self.traer_datos()
-        # Crear frame para los botones
-        self.frame_botones = ctk.CTkFrame(self.windows_table,height=150)
-        self.frame_botones.pack(pady=30)
+            # Estilo de los encabezados
+            self.estilos.configure("Treeview.Heading",
+                                background="#138d75",  # Fondo verde oscuro
+                                foreground="white",    # Texto blanco
+                                font=("Lato", 15, "bold"),  # Fuente de los encabezados
+                                )
+            
+                                
+            # Color cuando se selecciona una fila
+            self.estilos.map("Treeview",
+                        background=[("selected", "#3D91CB")],  # Fondo al seleccionar
+                        foreground=[("selected", "white")])    # Texto al seleccionar
 
 
-        separator = ttk.Separator(self.windows_table, orient='horizontal')
-        separator.pack(fill='x')
-        # Botón Traer
-        self.boton_traer = ctk.CTkButton(self.frame_botones,
-                                            text="Traer",
-                                            command=self.reconstruir,
-                                            bg_color="#58a151",
-                                            border_color="#356031",
-                                            height=50
-                                            )
-        self.boton_traer.pack(side="left", padx=30,pady=20)
 
-        # Botón Cancelar
-        self.boton_cancelar = ctk.CTkButton(self.frame_botones,
-                                             text="Cancelar",
-                                             command=self.cancelar,
-                                             height=50)
-        self.boton_cancelar.pack(side="left", padx=30,pady=20)
+            # Crear frame para la tabla
+            self.tabla = ttk.Treeview(self.windows_table, 
+                                    columns=("Cajero", "Fecha de Sesión", "Monto Final Wisphub", "Monto Final Caja", "Estado", "Observaciones"), 
+                                    show='headings')
+            
+            # Configurar las columnas
+            for col in self.tabla["columns"]:
+                self.tabla.heading(col, text=col)
+                self.tabla.column(col, anchor="center")
 
-      
+            # Agregar scrollbars
+            self.scroll_y = ttk.Scrollbar(self.tabla, orient="vertical", command=self.tabla.yview)
+            self.scroll_y.pack(side='right', fill='y')
+            self.tabla.configure(yscrollcommand=self.scroll_y.set)
+
+            self.scroll_x = ttk.Scrollbar(self.tabla, orient="horizontal", command=self.tabla.xview)
+            self.scroll_x.pack(side='bottom', fill='x')
+            self.tabla.configure(xscrollcommand=self.scroll_x.set)
+
+            self.tabla.pack(expand=True, fill="both")
+
+            # Cargar datos en la tabla
+            self.traer_datos()
+            # Crear frame para los botones
+            self.frame_botones = ctk.CTkFrame(self.windows_table,height=150,border_color="#517ea7",border_width=3)
+            self.frame_botones.pack(pady=30)
+
+
+            
+            # Botón Traer
+            self.boton_traer = ctk.CTkButton(self.frame_botones,
+                                                text="Traer",
+                                                command=self.reconstruir,
+                                                bg_color="transparent",
+                                                fg_color="#58a151",
+                                                border_color="#356031",
+                                                border_width=5,
+                                                hover_color="#3f733a",
+                                                height=50,
+                                                font=("Lato Bold",20)
+                                                )
+            self.boton_traer.pack(side="left", padx=30,pady=20)
+
+            # Botón Cancelar
+            self.boton_cancelar = ctk.CTkButton(self.frame_botones,
+                                                text="Cancelar",
+                                                command=self.cancelar,
+                                                bg_color="transparent",
+                                                fg_color="#cb4335",
+                                                border_color="#671b13",
+                                                border_width=5,
+                                                hover_color="#9d352a",
+                                                height=50,
+                                                font=("Lato Bold",20)
+                                                )
+            self.boton_cancelar.pack(side="left", padx=30,pady=20)
+
+        else:
+            self.windows_table.focus_force()
 
     def traer_datos(self):
         locale.setlocale(locale.LC_TIME, 'spanish')
@@ -1137,6 +1154,37 @@ class Calculadora():
         entry.insert(0,new_value)
         
         
+    def windows_observaciones(self):
+        if self.windows_obs is None or not self.windows_obs.winfo_exists():
+            self.windows_obs=ctk.CTkToplevel()
+            self.windows_obs.geometry("400x400+200+150")
+            self.windows_obs.attributes("-topmost", True)
+            self.windows_obs.title("Observaciones")
+            self.windows_obs.resizable(width=False,height=False)
+            self.txt_observaciones = ctk.CTkTextbox(self.windows_obs,
+                                                    border_color="#6b7fb0",
+                                                    fg_color="#1b1b1b",
+                                                    text_color="#dedede",
+                                                    font=('Lato Bold',17)
+                                                    )
         
+            self.txt_observaciones.pack(expand=True, fill="both")
+            
+            self.btn_acept = ctk.CTkButton(self.windows_obs,
+                                        height=40,
+                                        fg_color="#7cc162",
+                                        border_color="#2f8010s",
+                                        hover_color="#598b47",
+                                        text="Cargar",
+                                        font=('Lato Bold',15),
+                                        command=self.cargar_observaciones
+                                        )
+            
+            self.btn_acept.pack(padx=30,pady=20)
+        else:
+            self.windows_obs.focus_force()
+    
+    def cargar_observaciones(self):
+        pass
 if __name__ == '__main__':
     app=Calculadora()
