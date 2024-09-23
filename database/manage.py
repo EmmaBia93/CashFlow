@@ -11,7 +11,7 @@ def get_session():
     return Session()
 
 
-def crear_cajero(nombre, usuario, contrasena):
+def crear_cajero(nombre, usuario, contrasena,pregunta,respuesta):
     session = get_session()
     try:
         # Verificar si el usuario ya existe
@@ -20,11 +20,13 @@ def crear_cajero(nombre, usuario, contrasena):
             print(f"Error: El usuario '{usuario}' ya existe.")
             return False
 
+
+        respuesta_hash = hashpw(respuesta.encode('utf-8'),gensalt())
         # Crear hash de la contraseña
         contrasena_hash = hashpw(contrasena.encode('utf-8'), gensalt())
 
         # Crear nuevo cajero
-        nuevo_cajero = Cajero(nombre=nombre, usuario=usuario, contrasena_hash=contrasena_hash)
+        nuevo_cajero = Cajero(nombre=nombre, usuario=usuario, contrasena_hash=contrasena_hash,pregunta_seguridad=pregunta,respuesta_seguridad_hash=respuesta_hash)
 
         # Agregar y confirmar los cambios en la base de datos
         session.add(nuevo_cajero)
@@ -41,16 +43,41 @@ def crear_cajero(nombre, usuario, contrasena):
     finally:
         session.close()
 
-def get_cajero(nombre:str):
+def get_cajero(usuario:str):
     session = get_session()
     try:
-         cajero = session.query(Cajero).filter_by(usuario=nombre).first()
+         cajero = session.query(Cajero).filter_by(usuario=usuario).first()
          if cajero:
+             
              return cajero
+         else:
+            
+            return None
+            
     except:
+        
         return None
     finally:
         session.close()
+
+def change_password(cajero_id, new_password):
+    session = get_session()
+    
+    try:
+        cajero = session.query(Cajero).filter_by(id=cajero_id).first()
+        if cajero:
+            new_password_hash = hashpw(new_password.encode('utf-8'), gensalt())
+            cajero.contrasena_hash=new_password_hash
+            session.commit()
+            return True
+        else:
+            return False
+    except:
+        return False
+    finally:
+        session.close()
+        
+    
 
 
 def verificar_credenciales(usuario, contrasena):

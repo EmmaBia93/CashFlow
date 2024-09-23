@@ -11,6 +11,8 @@ class Cajero(Base):
     nombre = Column(String, nullable=False)
     usuario = Column(String, unique=True, nullable=False)
     contrasena_hash = Column(String, nullable=False)
+    pregunta_seguridad = Column(String, nullable=False)
+    respuesta_seguridad_hash = Column(String, nullable=False)
     sesiones = relationship('SesionCaja', backref='cajero')
 
 
