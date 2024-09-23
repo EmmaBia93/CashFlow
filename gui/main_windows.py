@@ -15,7 +15,7 @@ from tkinter import ttk
 
 import locale
 from database.manage import get_last_sesions
-from CTkTable import *
+
 
 class Calculadora():
     color = "#8CC65C"
@@ -258,7 +258,8 @@ class Calculadora():
             frame,
             text=text,
             font=font,
-            text_color="#8f8f8f")
+            text_color="#8f8f8f",
+            bg_color="transparent")
 
         return prototipe_label
 

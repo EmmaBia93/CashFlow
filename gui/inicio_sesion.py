@@ -425,6 +425,18 @@ class InicioSesion:
                                                     fg_color="#181818",
                                                     font=("Lato Bold",17))
                         self.new_pass.pack(pady=10,after=self.recovery_user)
+                        self.btn_new_pass = ctk.CTkButton(self.windows_pass,
+                                                          image=self.close_eye,
+                                                          bg_color="#181818",
+                                                          fg_color="#181818", 
+                                                            hover_color="#181818",
+                                                            text="",width=10,height=30,
+                                                            command=lambda:self.visible_hidden(self.new_pass,
+                                                                        self.btn_new_pass,
+                                                                        "hidden_recover1"))
+                        self.btn_new_pass.place(x=307,y=253)
+                        
+                        
                         self.new_conf_pass = ctk.CTkEntry(self.windows_pass,
                                                     placeholder_text="Confirmar Nueva Contraseña", 
                                                     show="*", 
@@ -433,7 +445,19 @@ class InicioSesion:
                                                     fg_color="#181818",
                                                     font=("Lato Bold",17))
                         self.new_conf_pass.pack(pady=10,after=self.new_pass)
+                        self.btn_conf_rpass = ctk.CTkButton(self.windows_pass,
+                                                          image=self.close_eye,
+                                                          bg_color="#181818",
+                                                          fg_color="#181818", 
+                                                            hover_color="#181818",
+                                                            text="",width=10,height=30,
+                                                            command=lambda:self.visible_hidden(self.new_conf_pass,
+                                                                        self.btn_conf_rpass,
+                                                                        "hidden_recover1"))
+                        self.btn_conf_rpass.place(x=307,y=313)
+                        
                         self.new_conf_pass.bind("<Return>",self.dar_click)
+
                 else:
                     self.error = ctk.CTkLabel(self.windows_pass,
                                                 text_color="#ff5733",
