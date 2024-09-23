@@ -26,6 +26,7 @@ class Calculadora():
     def __init__(self,user:str) -> None:
         self.user=user
         self.save_ok=False
+        self.observaciones=""
         self.lista_virtuales = []
         self.lista_wisphub = []
         self.validate_entry = lambda text: text.isdecimal()
@@ -405,7 +406,7 @@ class Calculadora():
                             border_width=0,    
                             bg_color="transparent",  
                             image=img_save,
-                            command=self.save_info  
+                            command=self.windows_observaciones  
                         )
         self.btn_save.place(relx=0.06, rely=0.05)
 
@@ -493,7 +494,7 @@ class Calculadora():
         self.btn_resultado.invoke()
 
     def colocal_widgets_frameright(self):
-
+        self.windows_look_obs=None
         self.entry_busqueda = ctk.CTkEntry(master=self.frame_right,
                                            width=760,
                                            height=45,
@@ -582,6 +583,17 @@ class Calculadora():
                                             command=self.encontrar_diferencia)
 
         self.btn_diferencia.place(relx=0.39, rely=0.86)
+
+        img_notes = ctk.CTkImage(dark_image=Image.open("img/note.png"), size=(25, 25))
+        self.btn_notes = ctk.CTkButton(self.frame_right,
+                                       text="",
+                                       image=img_notes,
+                                        fg_color="#2b2b2b", 
+                                        hover_color="#2b2b2b",
+                                        height=25,
+                                        width=25,
+                                        command=self.mostrar_observaciones)
+        self.btn_notes.place(relx=0.003,rely=0.94)
 
         self.en_wisphub = ctk.CTkEntry(self.frame_right,
                                        width=65,
@@ -954,27 +966,39 @@ class Calculadora():
             CTkMessagebox(master=self.master, title="ATENCIÓN!!", message="Nada para Comparar!!!",
                           icon="warning", justify="center", font=self.font_sans_20, icon_size=(40, 40))
 
-    def save_info(self):
-        self.windows_observaciones()
-        # if self.save_ok and self.txt_wisphub.get():
-            
-        #     monto_wisp=self.txt_wisphub.get()
-        #     total = re.sub(r'\$', '',self.total.get())
-            
-        #     billetes = [{'denominacion':100,'cantidad':self.txt_billete100.get() if self.txt_billete100.get() else 0 },
-        #                 {'denominacion':200,'cantidad':self.txt_billete200.get() if self.txt_billete200.get() else 0 },
-        #                 {'denominacion':500,'cantidad':self.txt_billete500.get() if self.txt_billete500.get() else 0 },
-        #                 {'denominacion':1000,'cantidad':self.txt_billete1000.get() if self.txt_billete1000.get() else 0 },
-        #                 {'denominacion':2000,'cantidad':self.txt_billete2000.get() if self.txt_billete2000.get() else 0 },
-        #                 {'denominacion':10000,'cantidad':self.txt_billetediezmil.get() if self.txt_billetediezmil.get() else 0 },]
-        #     transferencias =[]
 
-        #     for line in self.lista_virtuales:
-        #         transfer = {'nombre':re.sub(r'\d', '', line).strip(),'importe': re.sub(r'[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ]', '', line).strip()}
-        #         transferencias.append(transfer)
-        #     cajero= get_cajero(self.user)
+    
+
+    def save_info(self,text):
+           
         
-        #     save_sesion(cajero_id=int(cajero.id),total_wisp=float(monto_wisp),total_sesion=float(total),transferencias=transferencias,billetes=billetes,observaciones="No Falta nada")
+        if self.save_ok and self.txt_wisphub.get():
+            
+            monto_wisp=self.txt_wisphub.get()
+            total = re.sub(r'\$', '',self.total.get())
+            
+            billetes = [{'denominacion':100,'cantidad':self.txt_billete100.get() if self.txt_billete100.get() else 0 },
+                        {'denominacion':200,'cantidad':self.txt_billete200.get() if self.txt_billete200.get() else 0 },
+                        {'denominacion':500,'cantidad':self.txt_billete500.get() if self.txt_billete500.get() else 0 },
+                        {'denominacion':1000,'cantidad':self.txt_billete1000.get() if self.txt_billete1000.get() else 0 },
+                        {'denominacion':2000,'cantidad':self.txt_billete2000.get() if self.txt_billete2000.get() else 0 },
+                        {'denominacion':10000,'cantidad':self.txt_billetediezmil.get() if self.txt_billetediezmil.get() else 0 },]
+            transferencias =[]
+
+            for line in self.lista_virtuales:
+                transfer = {'nombre':re.sub(r'\d', '', line).strip(),'importe': re.sub(r'[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ]', '', line).strip()}
+                transferencias.append(transfer)
+            cajero= get_cajero(self.user)
+            
+            if save_sesion(cajero_id=int(cajero.id),total_wisp=float(monto_wisp),total_sesion=float(total),transferencias=transferencias,billetes=billetes,observaciones=text.strip()):
+                CTkMessagebox(message="Se ha Respaldado la información",icon="check",font=("Lato Bold",15))
+                self.windows_obs.destroy()
+            else:
+                 CTkMessagebox(message="No se pudo respaldar la información, vuelva a intentar",icon="cancel",font=("Lato Bold",15))
+                 return
+        else:
+            CTkMessagebox(message="No se ha finalizado la Caja",icon="warning",font=("Lato Bold",15))
+            return
 
 
 
@@ -1135,6 +1159,7 @@ class Calculadora():
                 for index,billete in enumerate(sesion.billetes):
                     self.carga_entry(billetes[index],billete.cantidad)
                 
+                self.observaciones = sesion.observaciones
                 self.carga_entry(self.txt_wisphub,int(sesion.total_wisphub))
                 
                 if sesion.transferencias:
@@ -1155,36 +1180,91 @@ class Calculadora():
         
         
     def windows_observaciones(self):
+        self.hidden_check = False
+        self.min_size = "400x200"  
+        self.max_size = "400x500"  
         if self.windows_obs is None or not self.windows_obs.winfo_exists():
-            self.windows_obs=ctk.CTkToplevel()
-            self.windows_obs.geometry("400x400+200+150")
+            self.windows_obs = ctk.CTkToplevel()
+            self.windows_obs.geometry(f"{self.min_size}+200+150")
             self.windows_obs.attributes("-topmost", True)
             self.windows_obs.title("Observaciones")
-            self.windows_obs.resizable(width=False,height=False)
+            self.windows_obs.resizable(width=False, height=False)
+
+            
+            self.nombre_cajero = ctk.CTkEntry(self.windows_obs,
+                                              width=300,
+                                              height=40,
+                                              fg_color="#181818",
+                                              font=("Lato Bold", 17),
+                                              text_color="#616161",
+                                              justify="center")
+            self.nombre_cajero.delete(first_index="0", last_index=ctk.END)
+            self.nombre_cajero.insert(index=ctk.END, string=f"Cajero: {self.user}")
+            self.nombre_cajero.configure(state="disabled")
+            self.nombre_cajero.pack(pady=10)
+
+            # CheckBox para mostrar/ocultar TextBox
+            self.check_var = ctk.StringVar(value="off")  # Desmarcado inicialmente
+            self.check_obs = ctk.CTkCheckBox(self.windows_obs,
+                                             text="Agregar Observaciones",
+                                             command=self.checkbox_event,
+                                             variable=self.check_var,
+                                             onvalue="on", offvalue="off",
+                                             font=("Lato Bold",15),
+                                             hover_color="#0b5345")
+            self.check_obs.pack(pady=10)
+
+            # Textbox de observaciones (inicialmente oculto)
             self.txt_observaciones = ctk.CTkTextbox(self.windows_obs,
                                                     border_color="#6b7fb0",
                                                     fg_color="#1b1b1b",
                                                     text_color="#dedede",
-                                                    font=('Lato Bold',17)
-                                                    )
-        
-            self.txt_observaciones.pack(expand=True, fill="both")
-            
+                                                    font=('Lato Bold', 17))
+
+            # Botón de aceptar
             self.btn_acept = ctk.CTkButton(self.windows_obs,
-                                        height=40,
-                                        fg_color="#7cc162",
-                                        border_color="#2f8010s",
-                                        hover_color="#598b47",
-                                        text="Cargar",
-                                        font=('Lato Bold',15),
-                                        command=self.cargar_observaciones
-                                        )
-            
-            self.btn_acept.pack(padx=30,pady=20)
+                                           height=40,
+                                           fg_color="#117a65",
+                                            hover_color="#0b5345",
+                                            border_color="#042a23",
+                                            border_width=2,
+                                           text="Cargar",
+                                           font=('Lato Bold', 15),
+                                           command=lambda:self.save_info(self.txt_observaciones.get("1.0", "end") if self.check_var.get() == "on" else "" ))
+            self.btn_acept.pack(padx=30, pady=20)
         else:
             self.windows_obs.focus_force()
-    
-    def cargar_observaciones(self):
-        pass
-if __name__ == '__main__':
-    app=Calculadora()
+
+    def checkbox_event(self):
+        
+        if self.check_var.get() == "on":
+            self.txt_observaciones.pack(pady=10, padx=5,expand=True,fill='both',before=self.btn_acept)
+            self.windows_obs.geometry(f"{self.max_size}+200+150")
+        else:
+            self.txt_observaciones.pack_forget()
+            self.windows_obs.geometry(f"{self.min_size}+200+150")  
+
+
+    def mostrar_observaciones(self):
+
+        if self.windows_look_obs is None or not self.windows_look_obs.winfo_exists():
+            self.windows_look_obs = ctk.CTkToplevel()
+            self.windows_look_obs.geometry(f"400x400+200+150")
+            self.windows_look_obs.attributes("-topmost", True)
+            self.windows_look_obs.title("Observaciones")
+            self.windows_look_obs.resizable(width=False, height=False)
+            self.txt_mostrar = ctk.CTkTextbox(self.windows_look_obs,
+                                                border_color="#6b7fb0",
+                                                fg_color="#1b1b1b",
+                                                text_color="#dedede",
+                                                font=('Lato Bold', 17))
+            self.txt_mostrar.configure(state="normal")
+
+            self.txt_mostrar.delete(index1="0.0", index2=ctk.END)
+            if self.observaciones.strip():
+                self.txt_mostrar.insert(index=ctk.END,text=self.observaciones)
+            else:
+                self.txt_mostrar.tag_config("obs", foreground="#f1c40f")
+                self.txt_mostrar.insert(index=ctk.END,text="No hay oberservaciones",tags="obs")
+            self.txt_mostrar.configure(state="disabled")
+            self.txt_mostrar.pack(pady=10,padx=5,expand=True,fill="both")

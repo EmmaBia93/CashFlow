@@ -7,6 +7,7 @@ from gui.main_windows import Calculadora
 from tkinter import messagebox
 from database.manage import crear_cajero
 import re
+from threading import Thread
 
 class InicioSesion:
     def __init__(self):
@@ -18,6 +19,9 @@ class InicioSesion:
         self.entry_usuario = None
         self.entry_contrasena = None
         self.ventana_registro=None
+
+
+
 
     def mostrar_ventana(self):
         """Muestra la ventana de inicio de sesión y controla el flujo."""
@@ -34,7 +38,7 @@ class InicioSesion:
         # Campos de entrada
         self.entry_usuario = ctk.CTkEntry(self.ventana, 
                                           placeholder_text="Usuario", 
-                                          width=200,
+                                          width=300,
                                           height=40,
                                           fg_color="#181818",
                                           font=("Lato Bold",17))
@@ -42,7 +46,7 @@ class InicioSesion:
         self.entry_contrasena = ctk.CTkEntry(self.ventana, 
                                              placeholder_text="Contraseña", 
                                              show="*", 
-                                             width=200,
+                                             width=300,
                                              height=40,
                                              fg_color="#181818",
                                              font=("Lato Bold",17))
@@ -50,40 +54,38 @@ class InicioSesion:
         
         
         self.entry_usuario.pack(pady=10)
-        self.entry_contrasena.pack(pady=10)
+        self.entry_contrasena.pack(pady=20)
         self.entry_contrasena.bind("<Return>", self.acept)
         
-        self.close_eye = ctk.CTkImage(Image.open("img/hide.png"), size=(20, 20))
-        self.eye = ctk.CTkImage(Image.open("img/vision.png"), size=(20, 20))
+        self.close_eye = ctk.CTkImage(Image.open("img/hide.png"), size=(25, 25))
+        self.eye = ctk.CTkImage(Image.open("img/vision.png"), size=(25, 25))
         
         self.btn_eye = ctk.CTkButton(self.ventana,image=self.close_eye,bg_color="#181818",fg_color="#181818", 
-                            hover_color="#181818",text="",width=10,height=20,command=self.visible_hidden)
-        self.btn_eye.place(x=262,y=237)
+                            hover_color="#181818",text="",width=10,height=30,command=self.visible_hidden)
+        self.btn_eye.place(x=300,y=243)
         
         # Botones
         self.btn_login = ctk.CTkButton(self.ventana, 
                                        text="Iniciar sesión", 
                                        command=self.iniciar_sesion,
-                                       fg_color="#956dae",
-                                       hover_color="#755689",
-                                       border_color="#46225b",
+                                       fg_color="#117a65",
+                                       hover_color="#0b5345",
+                                       border_color="#042a23",
                                        border_width=2,
                                        font=("Lato Bold",15),
                                        height=40)
         self.btn_login.pack(pady=15)
         self.btn_login.bind("<Return>",self.acept)
-        btn_nuevo_usuario = ctk.CTkButton(self.ventana, 
-                                          text="Registrarse", 
-                                          command=self.abrir_ventana_registro,
-                                          fg_color="#8cbc66",
-                                        hover_color="#65884a",
-                                        border_color="#4d7a2a",
-                                        border_width=2,
-                                        font=("Lato Bold",15),
-                                        height=40)
-        btn_nuevo_usuario.pack(pady=40)
         
-        
+        registro = ctk.CTkLabel(self.ventana,
+                                text="Registrarse",
+                                text_color="#464c89",
+                                font=("Lato Bold",15)
+                                )
+        registro.pack(pady=40)
+        registro.bind("<Enter>", lambda e: registro.configure(cursor="hand2"))
+        registro.bind("<Leave>", lambda e: registro.configure(cursor=""))
+        registro.bind("<Button-1>", self.abrir_ventana_registro)
         
         
         self.ventana.mainloop()
@@ -104,7 +106,7 @@ class InicioSesion:
         self.btn_login.invoke()
     
     
-    def abrir_ventana_registro(self):
+    def abrir_ventana_registro(self,event):
         self.registro()
         
 
@@ -117,11 +119,15 @@ class InicioSesion:
            
             self.inicio_exitoso = True
             self.ventana.destroy()
-            principal = Calculadora(usuario)
+            
+            Calculadora(usuario)
             
         else:
             self.intentos_fallidos += 1
-            self.label_info = ctk.CTkLabel(self.ventana,text="Usuario o Contraseña Incorrecto",text_color="#ff5733")
+            self.label_info = ctk.CTkLabel(self.ventana,
+                                           text="Usuario o Contraseña Incorrecto",
+                                           text_color="#ff5733",
+                                           font=("Lato Bold",13))
             self.label_info.pack(pady=20)
             
             if self.intentos_fallidos >= self.max_intentos:
@@ -167,6 +173,7 @@ class InicioSesion:
                                                height=40,
                                               fg_color="#181818",
                                               font=("Lato Bold",17))
+            
             self.entry_ncontrasena = ctk.CTkEntry(self.ventana_registro,
                                                   placeholder_text="Contraseña",
                                                   show="*",
@@ -174,6 +181,7 @@ class InicioSesion:
                                                   height=40,
                                                 fg_color="#181818",
                                                 font=("Lato Bold",17))
+            
             self.entry_nconfirmar_contrasena = ctk.CTkEntry(self.ventana_registro,
                                                             placeholder_text="Confirmar Contraseña",
                                                             show="*",
@@ -181,6 +189,7 @@ class InicioSesion:
                                                             height=40,
                                                             fg_color="#181818",
                                                             font=("Lato Bold",17))
+           
 
             self.entry_nnombre.pack(pady=10)
             self.entry_nusuario.pack(pady=10)
