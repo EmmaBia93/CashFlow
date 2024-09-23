@@ -19,6 +19,7 @@ class InicioSesion:
         self.hidden_recover2=True
         self.windows_pass=None
         self.intentos_fallidos = 0
+        self.error=None
         self.inicio_exitoso = False
         self.max_intentos = 3  
         self.ventana = None
@@ -155,7 +156,7 @@ class InicioSesion:
                                            text="Usuario o Contraseña Incorrecto",
                                            text_color="#ff5733",
                                            font=("Lato Bold",13))
-            self.label_info.pack(pady=30)
+            self.label_info.pack(side="bottom")
             
             if self.intentos_fallidos >= self.max_intentos:
                 msg_box = CTkMessagebox(master=self.ventana,
@@ -403,58 +404,93 @@ class InicioSesion:
             
     def recovery_password(self):
         
-        self.cajero = get_cajero(usuario=self.recovery_user.get())
-        
-        if self.cajero:
-           if self.combobox_rpregunta_seguridad.get() == self.cajero.pregunta_seguridad and  checkpw(self.entry_rrespuesta_seguridad.get().encode('utf-8'),self.cajero.respuesta_seguridad_hash):
-                self.recovery_user.configure(state="disabled",text_color="#545454",justify="center")
-                self.label_pregunta_seguridad.forget()
-                self.combobox_rpregunta_seguridad.forget()
-                self.entry_rrespuesta_seguridad.forget()
-                self.btn_search.configure(command=self.change_password)
-                self.new_pass = ctk.CTkEntry(self.windows_pass,
-                                             placeholder_text="Nueva Contraseña", 
-                                             show="*", 
-                                             width=300,
-                                             height=40,
-                                             fg_color="#181818",
-                                             font=("Lato Bold",17))
-                self.new_pass.pack(pady=10,after=self.recovery_user)
-                self.new_conf_pass = ctk.CTkEntry(self.windows_pass,
-                                             placeholder_text="Confirmar Nueva Contraseña", 
-                                             show="*", 
-                                             width=300,
-                                             height=40,
-                                             fg_color="#181818",
-                                             font=("Lato Bold",17))
-                self.new_conf_pass.pack(pady=10,after=self.new_pass)
-           else:
-               pass
+        if self.recovery_user.get().strip() and self.entry_rrespuesta_seguridad.get().strip():
+            self.cajero = get_cajero(usuario=self.recovery_user.get())
+            
+            if self.cajero:
+                if self.combobox_rpregunta_seguridad.get() == self.cajero.pregunta_seguridad and  checkpw(self.entry_rrespuesta_seguridad.get().encode('utf-8'),self.cajero.respuesta_seguridad_hash):
+                        self.recovery_user.configure(state="disabled",text_color="#545454",justify="center")
+                        self.label_pregunta_seguridad.forget()
+                        self.combobox_rpregunta_seguridad.forget()
+                        self.entry_rrespuesta_seguridad.forget()
+                        
+                        if self.error != None:
+                            self.error.forget()
+                        self.btn_search.configure(command=self.change_password)
+                        self.new_pass = ctk.CTkEntry(self.windows_pass,
+                                                    placeholder_text="Nueva Contraseña", 
+                                                    show="*", 
+                                                    width=300,
+                                                    height=40,
+                                                    fg_color="#181818",
+                                                    font=("Lato Bold",17))
+                        self.new_pass.pack(pady=10,after=self.recovery_user)
+                        self.new_conf_pass = ctk.CTkEntry(self.windows_pass,
+                                                    placeholder_text="Confirmar Nueva Contraseña", 
+                                                    show="*", 
+                                                    width=300,
+                                                    height=40,
+                                                    fg_color="#181818",
+                                                    font=("Lato Bold",17))
+                        self.new_conf_pass.pack(pady=10,after=self.new_pass)
+                        self.new_conf_pass.bind("<Return>",self.dar_click)
+                else:
+                    self.error = ctk.CTkLabel(self.windows_pass,
+                                                text_color="#ff5733",
+                                                font=("Lato Bold",13),
+                                                text="Pregunta o Respuesta de seguridad incorrectas"
+                                              )
+                    self.error.pack(side="bottom",after=self.btn_search)
+            else:
+                CTkMessagebox(title="ERROR!!",
+                            message=f"El Usuario no se encuentra registrado",
+                            font=("Lato Bold",15),
+                                icon="cancel")
         else:
+
+            CTkMessagebox(title="ATENCIÓN",
+                            message=f"Debe Completar todos los campos.",
+                            font=("Lato Bold",15),
+                                icon="warning")
+
+    def change_password(self):
+        contrasena = self.new_pass.get()
+        confirmacion_contraseña = self.new_conf_pass.get()
+        regex_pass = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,}$"
+        
+
+        
+        
+        if not re.match(regex_pass, contrasena):
+            CTkMessagebox(width=400,
+                          height=300,
+                          title="ATENCIÓN!!",
+                          message=f"""Contraseña poco segura, la contraseña debe contener al menos un mayúscula,una minúscula,un número y un carácter especial, y una longitud de 8 como mínimo""",
+                          font=("Lato Bold",15),
+                          icon="warning"
+                          )
+            return
+
+        if contrasena != confirmacion_contraseña:
+           
             CTkMessagebox(title="ERROR!!",
-                          message=f"El Usuario no se encuentra registrado",
+                          message=f"Las Contraseñas no coinciden.",
                           font=("Lato Bold",15),
                           icon="cancel")
-    
-    def change_password(self):
-        contraseña = self.new_pass.get()
-        confirmacion_contraseña = self.new_conf_pass.get()
+            return
         
-        if contraseña == confirmacion_contraseña:
-            if change_password(self.cajero.id,new_password=contraseña):
+        if change_password(self.cajero.id,new_password=contrasena):
                 CTkMessagebox(title="EXITO!!!",
                           message=f"Se Modificó la contraseña del usuario.",
                           font=("Lato Bold",15),
                           icon="check")
                 self.windows_pass.destroy()
-            else:
+        else:
                 CTkMessagebox(title="ERROR!!",
                           message=f"Ocurrio un problema al cambiar la contraseña.",
                           font=("Lato Bold",15),
                           icon="cancel")
                 return
-        else:
-            CTkMessagebox(title="ERROR!!",
-                          message=f"Las Contraseñas no coinciden.",
-                          font=("Lato Bold",15),
-                          icon="cancel")
+        
+    def dar_click(self,event):
+        self.btn_search.invoke()
