@@ -5,10 +5,9 @@ from PIL import Image
 from CTkMessagebox import CTkMessagebox
 from database.manage import verificar_credenciales
 from gui.main_windows import Calculadora
-from tkinter import messagebox
 from database.manage import crear_cajero,get_cajero,change_password
 import re
-from threading import Thread
+
 
 class InicioSesion:
     def __init__(self):
@@ -143,34 +142,41 @@ class InicioSesion:
         usuario = self.entry_usuario.get()
         contrasena = self.entry_contrasena.get()
 
-        if verificar_credenciales(usuario, contrasena):
-           
-            self.inicio_exitoso = True
-            self.ventana.destroy()
+        if usuario and contrasena:
+            if verificar_credenciales(usuario, contrasena):
             
-            Calculadora(usuario)
-            
-        else:
-            self.intentos_fallidos += 1
-            self.label_info = ctk.CTkLabel(self.ventana,
-                                           text="Usuario o Contraseña Incorrecto",
-                                           text_color="#ff5733",
-                                           font=("Lato Bold",13))
-            self.label_info.pack(side="bottom")
-            
-            if self.intentos_fallidos >= self.max_intentos:
-                msg_box = CTkMessagebox(master=self.ventana,
-                                        title="Error!!!",
-                                        message="Se he excedido la cantidad de intentos",
-                                        option_1="OK",
-                                        icon="cancel",
-                                        font=("Lato Bold",16),
-                                        icon_size=(60, 60))
+                self.inicio_exitoso = True
+                self.ventana.destroy()
                 
-                if msg_box.get() == "OK":
-                    self.ventana.destroy()  
-                    sys.exit()  
-
+                Calculadora(usuario)
+                
+            else:
+                self.intentos_fallidos += 1
+                self.label_info = ctk.CTkLabel(self.ventana,
+                                            text="Usuario o Contraseña Incorrecto",
+                                            text_color="#ff5733",
+                                            font=("Lato Bold",13))
+                self.label_info.pack(side="bottom")
+                
+                if self.intentos_fallidos >= self.max_intentos:
+                    msg_box = CTkMessagebox(master=self.ventana,
+                                            title="Error!!!",
+                                            message="Se he excedido la cantidad de intentos",
+                                            option_1="OK",
+                                            icon="cancel",
+                                            font=("Lato Bold",16),
+                                            icon_size=(60, 60))
+                    
+                    if msg_box.get() == "OK":
+                        self.ventana.destroy()  
+                        sys.exit()  
+        else:
+            CTkMessagebox(
+                          title="ATENCIÓN!!",
+                          message=f"Todos Los Campos son Obligatirios",
+                          font=("Lato Bold",15),
+                          icon="warning"
+                          )
 
 
    
@@ -300,14 +306,27 @@ class InicioSesion:
         pregunta_seguridad = self.combobox_pregunta_seguridad.get()
         respuesta_seguridad = self.entry_respuesta_seguridad.get()
         # Validar que los campos no estén vacíos
+
+        
+
         if not nombre or not usuario or not contrasena or not confirmar_contrasena or not respuesta_seguridad:
-            messagebox.showerror("Error", "Todos los campos son obligatorios")
+            CTkMessagebox(
+                          title="ATENCIÓN!!",
+                          message=f"Todos Los Campos son Obligatirios",
+                          font=("Lato Bold",15),
+                          icon="warning"
+                          )
             return
         
         
         # Validar que las contraseñas coincidan
         if contrasena != confirmar_contrasena:
-            messagebox.showerror("Error", "Las contraseñas no coinciden")
+            CTkMessagebox(
+                          title="ATENCIÓN!!",
+                          message=f"Las Contraseñas no Coinciden",
+                          font=("Lato Bold",15),
+                          icon="warning"
+                          )
             return
         
         if not re.match(regex_user,nombre):

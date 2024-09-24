@@ -998,7 +998,7 @@ class Calculadora():
                  CTkMessagebox(message="No se pudo respaldar la información, vuelva a intentar",icon="cancel",font=("Lato Bold",15))
                  return
         else:
-            CTkMessagebox(message="No se ha finalizado la Caja",icon="warning",font=("Lato Bold",15))
+            CTkMessagebox(master=self.master,title="ERROR!!",message="No se ha finalizado la Caja",icon="cancel",font=("Lato Bold",15))
             return
 
 
