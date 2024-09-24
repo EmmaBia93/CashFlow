@@ -173,7 +173,7 @@ class InicioSesion:
         else:
             CTkMessagebox(
                           title="ATENCIÓN!!",
-                          message=f"Todos Los Campos son Obligatirios",
+                          message=f"Todos Los Campos son Obligatorios",
                           font=("Lato Bold",15),
                           icon="warning"
                           )
@@ -312,7 +312,7 @@ class InicioSesion:
         if not nombre or not usuario or not contrasena or not confirmar_contrasena or not respuesta_seguridad:
             CTkMessagebox(
                           title="ATENCIÓN!!",
-                          message=f"Todos Los Campos son Obligatirios",
+                          message=f"Todos Los Campos son Obligatorios",
                           font=("Lato Bold",15),
                           icon="warning"
                           )
