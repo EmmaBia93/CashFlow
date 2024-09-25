@@ -2,16 +2,18 @@ from sqlalchemy import create_engine, Column, Integer, String,ForeignKey,DateTim
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker,relationship
 from datetime import datetime
+from dotenv import load_dotenv
+import os
 
 Base = declarative_base()
 
 class Cajero(Base):
     __tablename__ = 'cajeros'
     id = Column(Integer, primary_key=True, autoincrement=True)
-    nombre = Column(String, nullable=False)
-    usuario = Column(String, unique=True, nullable=False)
+    nombre = Column(String(255), nullable=False)
+    usuario = Column(String(255), unique=True, nullable=False)
     contrasena_hash = Column(String, nullable=False)
-    pregunta_seguridad = Column(String, nullable=False)
+    pregunta_seguridad = Column(String(255), nullable=False)
     respuesta_seguridad_hash = Column(String, nullable=False)
     sesiones = relationship('SesionCaja', backref='cajero')
 
@@ -23,7 +25,7 @@ class SesionCaja(Base):
     fecha_cierre = Column(DateTime, default=datetime.now)
     total_wisphub = Column(Float, nullable=False)
     total_importe = Column(Float, nullable=False)
-    observaciones = Column(String, nullable=True)
+    observaciones = Column(String(255), nullable=True)
     transferencias = relationship('Transferencias', backref='sesion')
     billetes = relationship('BilleteSesion', backref='sesion')
 
@@ -31,7 +33,7 @@ class SesionCaja(Base):
 class Transferencias(Base):
     __tablename__ = 'transferencias'
     id = Column(Integer, primary_key=True, autoincrement=True)
-    nombre_cliente = Column(String, nullable=False)
+    nombre_cliente = Column(String(255), nullable=False)
     importe_transferencia = Column(Float, nullable=False)
     sesion_id = Column(Integer, ForeignKey('sesion_caja.id', ondelete='CASCADE'), nullable=False)
 
@@ -48,7 +50,9 @@ class BilleteSesion(Base):
 
 
 def init_db():
-    engine = create_engine('sqlite:///database/database.db')
+    load_dotenv()
+    DATA_URL = f"mysql+pymysql://root:{os.getenv('PASS_DATA')}@localhost:3306/caja"
+    engine = create_engine(DATA_URL)
     Base.metadata.create_all(engine)
     return sessionmaker(bind=engine)
 

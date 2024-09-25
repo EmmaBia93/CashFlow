@@ -83,7 +83,7 @@ def change_password(cajero_id, new_password):
 def verificar_credenciales(usuario, contrasena):
     session = get_session()
     cajero = session.query(Cajero).filter_by(usuario=usuario).first()
-    if cajero and checkpw(contrasena.encode('utf-8'),cajero.contrasena_hash):
+    if cajero and checkpw(contrasena.encode('utf-8'),cajero.contrasena_hash.encode('utf-8')):
         return True
     else:
         return False 

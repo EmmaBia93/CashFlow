@@ -1026,32 +1026,33 @@ class Calculadora():
             self.estilos = ttk.Style()
             self.estilos.theme_use("alt")
 
-            # Fondo de la tabla y líneas
+           
             self.estilos.configure("Treeview",
-                                background="#2b2b2b",  # Fondo oscuro
-                                foreground="white",    # Texto blanco
-                                rowheight=25,          # Altura de cada fila
-                                fieldbackground="#2b2b2b",  # Fondo de las celdas
+                                background="#2b2b2b", 
+                                foreground="white",   
+                                rowheight=25,        
+                                fieldbackground="#2b2b2b", 
                                 )
 
 
             
 
-            # Estilo de los encabezados
+           
             self.estilos.configure("Treeview.Heading",
-                                background="#138d75",  # Fondo verde oscuro
-                                foreground="white",    # Texto blanco
-                                font=("Lato", 15, "bold"),  # Fuente de los encabezados
+                                background="#138d75",  
+                                foreground="white",  
+                                font=("Lato", 15, "bold"), 
                                 )
             
                                 
-            # Color cuando se selecciona una fila
+            
             self.estilos.map("Treeview",
-                        background=[("selected", "#3D91CB")],  # Fondo al seleccionar
-                        foreground=[("selected", "white")])    # Texto al seleccionar
+                        background=[("selected", "#3D91CB"),
+                                    ("active", "#138d75")],  
+                        foreground=[("selected", "white")],
+                       )   
 
-
-
+            
             # Crear frame para la tabla
             self.tabla = ttk.Treeview(self.windows_table, 
                                     columns=("Cajero", "Fecha de Sesión", "Monto Final Wisphub", "Monto Final Caja", "Estado", "Observaciones"), 
@@ -1069,8 +1070,9 @@ class Calculadora():
 
             self.scroll_x = ttk.Scrollbar(self.tabla, orient="horizontal", command=self.tabla.xview)
             self.scroll_x.pack(side='bottom', fill='x')
-            self.tabla.configure(xscrollcommand=self.scroll_x.set)
-
+            self.tabla.configure(xscrollcommand=self.scroll_x.set)  
+            
+            
             self.tabla.pack(expand=True, fill="both")
 
             # Cargar datos en la tabla
@@ -1114,8 +1116,12 @@ class Calculadora():
 
     def traer_datos(self):
         locale.setlocale(locale.LC_TIME, 'spanish')
-        # Esta función debe ser implementada para cargar datos en la tabla
-        self.sesiones = get_last_sesions()  # Obtén datos de sesiones (función ficticia)
+        
+        self.sesiones = get_last_sesions() 
+        self.tabla.tag_configure('oddrow', background="#343434")   
+        self.tabla.tag_configure('evenrow', background="#2b2b2b") 
+        self.tabla.tag_configure("Custom.Row", font=("Lato Bold", 13)) 
+        
         for index,sesion in enumerate(self.sesiones):
             fecha = sesion.fecha_cierre.strftime('%A %d-%m %H:%M')
             fecha=str(fecha).capitalize()
@@ -1125,13 +1131,15 @@ class Calculadora():
                 -1: "Sobra",
                 1: "Falta"
                     }
+            tag = 'evenrow' if index % 2 == 0 else 'oddrow'
             estado = mensajes[(diferencia > 0) - (diferencia < 0)]
-            self.tabla.insert("", tk.END, values=(sesion.cajero.nombre,f"{fecha}",sesion.total_wisphub,sesion.total_importe,estado,sesion.observaciones))
-            for item in self.tabla.get_children():
-                self.tabla.item(item, tags=("Custom.Row",))  # Aplica un tag a la fila
+            row=(sesion.cajero.nombre,f"{fecha}",sesion.total_wisphub,sesion.total_importe,estado,sesion.observaciones)
+            self.tabla.insert("", "end", values=row,tags=(tag,"Custom.Row"))
+            
+            
 
-        # Cambiar la fuente de las filas
-        self.tabla.tag_configure("Custom.Row", font=("Lato Bold", 13)) 
+       
+        
 
        
     def cancelar(self):
