@@ -41,6 +41,9 @@ class InicioSesion:
 
         # Cargar imagen de usuario (asegúrate de tener una imagen llamada 'usuario.png')
         imagen_usuario = ctk.CTkImage(Image.open("img/gamer.png"), size=(100, 100))
+        pattern = ctk.CTkImage(Image.open("img/pattern.png"),size=(1920/2,1248/2))
+        bg = ctk.CTkLabel(self.ventana,image=pattern,text="")
+        bg.place(relheight=1,relwidth=1)
         label_imagen = ctk.CTkLabel(self.ventana, image=imagen_usuario, text="")
         label_imagen.pack(pady=30)
 
@@ -105,7 +108,9 @@ class InicioSesion:
         registro = ctk.CTkLabel(self.ventana,
                                 text="Registrarse",
                                 text_color="#464c89",
-                                font=("Lato Bold",15)
+                                font=("Lato Bold",15),
+                                bg_color="transparent",
+                                
                                 )
         registro.pack()
         registro.bind("<Enter>", lambda e: registro.configure(cursor="hand2"))
@@ -190,6 +195,9 @@ class InicioSesion:
             self.ventana_registro.attributes("-topmost", True)
             self.ventana_registro.resizable(width=False,height=False)
             # Cargar imagen de usuario
+            pattern = ctk.CTkImage(Image.open("img/pattern.png"),size=(1920/1.8,1248/1.8))
+            bg = ctk.CTkLabel(self.ventana_registro, image=pattern,text="")
+            bg.place(relheight=1,relwidth=1)
             imagen_usuario = ctk.CTkImage(Image.open("img/user.png"), size=(100, 100))
             label_imagen = ctk.CTkLabel(self.ventana_registro, image=imagen_usuario, text="")
             label_imagen.pack(pady=40)
@@ -363,11 +371,14 @@ class InicioSesion:
     def ventana_pass(self,event):
         if self.windows_pass is None or not self.windows_pass.winfo_exists():
             self.windows_pass = ctk.CTkToplevel()
+            max_size = "400x700+0+0"
             self.windows_pass.title("Recuperación de contraseña")
-            self.windows_pass.geometry("400x700+0+0")
+            self.windows_pass.geometry(max_size)
             self.windows_pass.attributes("-topmost", True)
             self.windows_pass.resizable(width=False,height=False)
+            
             lock = ctk.CTkImage(Image.open("img/unlocked.png"), size=(100, 100))
+            
             label_imagen = ctk.CTkLabel(self.windows_pass, image=lock, text="")
             label_imagen.pack(pady=40)
             self.recovery_user = ctk.CTkEntry(self.windows_pass, 
@@ -427,12 +438,14 @@ class InicioSesion:
             self.cajero = get_cajero(usuario=self.recovery_user.get())
             
             if self.cajero:
-                if self.combobox_rpregunta_seguridad.get() == self.cajero.pregunta_seguridad and  checkpw(self.entry_rrespuesta_seguridad.get().encode('utf-8'),self.cajero.respuesta_seguridad_hash):
+                if self.combobox_rpregunta_seguridad.get() == self.cajero.pregunta_seguridad and  checkpw(self.entry_rrespuesta_seguridad.get().encode('utf-8'),self.cajero.respuesta_seguridad_hash.encode('utf-8')):
                         self.recovery_user.configure(state="disabled",text_color="#545454",justify="center")
                         self.label_pregunta_seguridad.forget()
                         self.combobox_rpregunta_seguridad.forget()
                         self.entry_rrespuesta_seguridad.forget()
-                        
+                        if self.error!=None:
+                            self.error.forget()
+                        self.windows_pass.geometry("400x500+0+0")
                         if self.error != None:
                             self.error.forget()
                         self.btn_search.configure(command=self.change_password)
@@ -478,12 +491,16 @@ class InicioSesion:
                         self.new_conf_pass.bind("<Return>",self.dar_click)
 
                 else:
-                    self.error = ctk.CTkLabel(self.windows_pass,
-                                                text_color="#ff5733",
-                                                font=("Lato Bold",13),
-                                                text="Pregunta o Respuesta de seguridad incorrectas"
-                                              )
-                    self.error.pack(side="bottom",after=self.btn_search)
+                    if self.error==None:
+                        self.error = ctk.CTkLabel(self.windows_pass,
+                                                    text_color="#ff5733",
+                                                    font=("Lato Bold",13),
+                                                    text="Pregunta o Respuesta de seguridad incorrectas"
+                                                )
+                        self.error.pack(side="bottom",after=self.btn_search)
+                    else:
+                        self.error.pack(side="bottom",after=self.btn_search)
+                        
             else:
                 CTkMessagebox(title="ERROR!!",
                             message=f"El Usuario no se encuentra registrado",

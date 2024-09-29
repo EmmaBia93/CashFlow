@@ -5,6 +5,3 @@ app = InicioSesion()
 app.mostrar_ventana()
 
 
-#Mejorar la tabla
-#Conectar a MySQL
-#Tu puedes :) 

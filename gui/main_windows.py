@@ -1154,7 +1154,15 @@ class Calculadora():
                 item_id = seleccion[0]
                 # Obtener el índice de la fila seleccionada
                 indice = self.tabla.index(item_id)
-                
+                self.lb_min_importe_wisp.forget()
+                self.lb_max_importe_wisp.forget()
+
+                # Actualizar el campo de cantidad de resultados
+                self.en_wisphub.configure(state="normal")
+                self.en_wisphub.delete(first_index="0", last_index=ctk.END)
+                self.en_wisphub.insert(index=ctk.END, string="")
+                self.en_wisphub.configure(state="disabled")
+               
                 sesion = self.sesiones[indice]
                 
                 billetes = [
